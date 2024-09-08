@@ -4,8 +4,9 @@ import axios from "axios";
 
 const QRScannerModal = ({ onClose }) => {
   const [qrData, setQrData] = useState("");
-  const [selection, setSelection] = useState(""); // For selecting check-in or snacks
+  const [selection, setSelection] = useState("");
   const [scanning, setScanning] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const videoRef = useRef(null);
   const codeReader = useRef(null);
 
@@ -47,6 +48,7 @@ const QRScannerModal = ({ onClose }) => {
 
   const handleSave = async () => {
     try {
+      setIsSaving(true);
       const { slug, email } = JSON.parse(qrData);
 
       if (selection === "checkin") {
@@ -55,29 +57,29 @@ const QRScannerModal = ({ onClose }) => {
         await axios.post("/api/v1/events/snacks", { slug, email });
       }
 
-      // Reset state after saving
       setQrData("");
       setSelection("");
       setScanning(true);
     } catch (error) {
       console.error("Error saving QR data:", error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-800 bg-opacity-75">
       <div className="bg-white p-6 rounded-lg shadow-lg relative max-w-md w-full">
-        {/* Close button */}
         <button
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl font-bold"
           onClick={onClose}
+          disabled={isSaving}
         >
           &times;
         </button>
 
         {scanning ? (
           <div>
-            {/* QR Code Scanner */}
             <video ref={videoRef} className="w-full h-auto mb-4 rounded" />
             <p className="text-gray-600 text-center">
               Scanning for QR codes...
@@ -95,7 +97,6 @@ const QRScannerModal = ({ onClose }) => {
               {JSON.stringify(JSON.parse(qrData), null, 2)}
             </pre>
 
-            {/* Radio buttons for Check-in or Snacks */}
             <div className="flex flex-col space-y-3">
               <label className="flex items-center">
                 <input
@@ -105,6 +106,7 @@ const QRScannerModal = ({ onClose }) => {
                   checked={selection === "checkin"}
                   onChange={() => setSelection("checkin")}
                   className="form-radio text-blue-500"
+                  disabled={isSaving}
                 />
                 <span className="ml-2 text-gray-700">Check-in</span>
               </label>
@@ -116,17 +118,22 @@ const QRScannerModal = ({ onClose }) => {
                   checked={selection === "snacks"}
                   onChange={() => setSelection("snacks")}
                   className="form-radio text-blue-500"
+                  disabled={isSaving}
                 />
                 <span className="ml-2 text-gray-700">Snacks</span>
               </label>
             </div>
 
-            {/* Save Button */}
             <button
               onClick={handleSave}
-              className="mt-6 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
+              className={`mt-6 w-full py-2 rounded-lg transition ${
+                isSaving
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-blue-500 hover:bg-blue-600"
+              } text-white`}
+              disabled={isSaving}
             >
-              Save
+              {isSaving ? "Saving..." : "Save"}
             </button>
           </div>
         )}
