@@ -37,17 +37,33 @@ export default async function handler(req, res) {
 
       const Participant = db.model(collection.participants, participantSchema);
 
+      const existingParticipant = await Participant.findOne({ email });
+      if (!existingParticipant) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Participant not found." });
+      }
+
+      if (existingParticipant.rsvp) {
+        return res.status(200).send(`
+          <html>
+            <head>
+              <title>RSVP Already Confirmed</title>
+            </head>
+            <body style="text-align:center; font-family:Arial, sans-serif;">
+              <h1>RSVP Already Confirmed</h1>
+              <p>You have already RSVPd for the event: <strong>${event.event_name}</strong>.</p>
+              <p>If you need to make changes or have questions, please contact us at community@githubsrmist.tech.</p>
+            </body>
+          </html>
+        `);
+      }
+
       const updatedParticipant = await Participant.findOneAndUpdate(
         { email },
         { rsvp: true },
         { new: true }
       );
-
-      if (!updatedParticipant) {
-        return res
-          .status(404)
-          .json({ success: false, error: "Participant not found." });
-      }
 
       const qrCodeData = JSON.stringify({
         slug: event.slug,
