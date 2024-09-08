@@ -1,6 +1,10 @@
 import DBInstance from "@/utils/db";
 import Event from "@/utils/models/event.models";
 import mongoose from "mongoose";
+import { generateQRCode } from "@/utils/email/qrcodeGenerator";
+import { sendEmailWithAttachment } from "@/utils/email/emailSender";
+import fs from "fs";
+import path from "path";
 
 DBInstance();
 
@@ -35,7 +39,7 @@ export default async function handler(req, res) {
 
       const updatedParticipant = await Participant.findOneAndUpdate(
         { email },
-        { rsvp: true }, // Update RSVP status to true
+        { rsvp: true },
         { new: true }
       );
 
@@ -45,10 +49,46 @@ export default async function handler(req, res) {
           .json({ success: false, error: "Participant not found." });
       }
 
-      res.status(200).json({
-        success: true,
-        data: updatedParticipant,
+      const qrCodeData = JSON.stringify({
+        slug: event.slug,
+        email: updatedParticipant.email,
       });
+      const qrCodeImage = await generateQRCode(qrCodeData);
+
+      const emailTemplatePath = path.resolve("utils/email/ticket.html");
+      const emailBodyTemplate = fs.readFileSync(emailTemplatePath, "utf-8");
+      const emailBody = emailBodyTemplate
+        .replaceAll("{{name}}", updatedParticipant.name)
+        .replaceAll("{{email}}", updatedParticipant.email)
+        .replaceAll("{{phn}}", updatedParticipant.phn)
+        .replaceAll("{{event}}", event.event_name)
+        .replaceAll("{{department}}", updatedParticipant.dept)
+        .replaceAll("{{registrationNumber}}", updatedParticipant.regNo)
+        .replaceAll("{{event_description}}", event.event_description)
+        .replaceAll("{{date}}", event.event_date)
+        .replaceAll("{{venue}}", event.venue)
+        .replaceAll("{{prerequisites}}", event.prerequisites)
+        .replaceAll("{{slug}}", event.slug);
+
+      await sendEmailWithAttachment(
+        email,
+        `Event Ticket | ${event.event_name} | GitHub Community SRM`,
+        emailBody,
+        qrCodeImage,
+        "event-ticket.png"
+      );
+
+      res.status(200).send(`
+        <html>
+          <head>
+            <title>RSVP Confirmation</title>
+          </head>
+          <body style="text-align:center; font-family:Arial, sans-serif;">
+            <h1>Thank you for RSVPing!</h1>
+            <p>Your RSVP has been confirmed. Please check your email for the event ticket QR code.</p>
+          </body>
+        </html>
+      `);
     } catch (error) {
       console.error("Error updating participant:", error);
       res.status(500).json({ success: false, error: "Internal Server Error" });
