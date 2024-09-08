@@ -1,4 +1,3 @@
-// @/components/events/SendRsvpModal.js
 import { useState } from "react";
 
 const SendRsvpModal = ({ participants, onClose, onSend }) => {
@@ -10,9 +9,12 @@ const SendRsvpModal = ({ participants, onClose, onSend }) => {
     setSentEmails([]);
 
     for (const participant of participants) {
-      await onSend(participant);
-      setSentEmails((prev) => [...prev, participant.email]);
-      // Wait for half a second before sending the next email
+      try {
+        await onSend(participant);
+        setSentEmails((prev) => [...prev, participant.email]);
+      } catch (error) {
+        console.error("Error sending email to:", participant.email);
+      }
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
 
@@ -25,7 +27,19 @@ const SendRsvpModal = ({ participants, onClose, onSend }) => {
         <h3 className="text-xl font-bold mb-4">Send RSVP Emails</h3>
         <p className="mb-4">Total Participants: {participants.length}</p>
         {sending ? (
-          <p>Sending emails...</p>
+          <div>
+            <p>Sending emails...</p>
+            <div className="mt-2">
+              <h4 className="font-bold">Sent Emails:</h4>
+              <div className="max-h-40 overflow-y-auto">
+                <ul>
+                  {sentEmails.map((email) => (
+                    <li key={email}>{email}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
         ) : (
           <>
             <button
@@ -36,11 +50,13 @@ const SendRsvpModal = ({ participants, onClose, onSend }) => {
             </button>
             <div>
               <h4 className="font-bold">Sent Emails:</h4>
-              <ul>
-                {sentEmails.map((email) => (
-                  <li key={email}>{email}</li>
-                ))}
-              </ul>
+              <div className="max-h-40 overflow-y-auto">
+                <ul>
+                  {sentEmails.map((email) => (
+                    <li key={email}>{email}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </>
         )}
