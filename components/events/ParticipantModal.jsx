@@ -2,8 +2,30 @@ import { useState } from "react";
 
 const ParticipantModal = ({ participant, onClose, onSave, onChange }) => {
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const validateForm = () => {
+    if (!/^\d{10}$/.test(participant.phn)) {
+      setError("Phone number must be 10 digits.");
+      return false;
+    }
+    if (!/^[a-zA-Z0-9._%+-]+@srmist\.edu\.in$/.test(participant.email)) {
+      setError("Email must end with @srmist.edu.in.");
+      return false;
+    }
+    if (participant.regNo.length !== 15) {
+      setError("Registration number must be 15 characters long.");
+      return false;
+    }
+    setError(""); // Clear any previous error if validation passes
+    return true;
+  };
 
   const handleSaveClick = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSaving(true);
     await onSave();
     setIsSaving(false);
@@ -13,6 +35,9 @@ const ParticipantModal = ({ participant, onClose, onSave, onChange }) => {
     <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-80">
         <h3 className="text-xl font-bold mb-4">Edit Participant</h3>
+
+        {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Name:</label>
           <input
@@ -41,6 +66,18 @@ const ParticipantModal = ({ participant, onClose, onSave, onChange }) => {
             type="text"
             name="regNo"
             value={participant.regNo}
+            onChange={onChange}
+            className="w-full border border-gray-300 rounded-lg p-2"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">
+            Phone Number:
+          </label>
+          <input
+            type="text"
+            name="phn"
+            value={participant.phn}
             onChange={onChange}
             className="w-full border border-gray-300 rounded-lg p-2"
           />
