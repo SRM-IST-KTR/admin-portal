@@ -1,3 +1,4 @@
+// components/events/EventDetails.js
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -131,6 +132,19 @@ const EventDetails = () => {
     setShowQRScanner(false);
   };
 
+  const handleQrScan = async (email) => {
+    try {
+      const participant = participants.find((p) => p.email === email);
+      if (participant) {
+        setSelectedParticipant(participant);
+      } else {
+        console.error("Participant not found:", email);
+      }
+    } catch (error) {
+      console.error("Error handling QR scan:", error);
+    }
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -143,7 +157,6 @@ const EventDetails = () => {
     <div className="container mx-auto px-4 py-8 text-black">
       <EventInfo event={event} />
       <div className="flex justify-between">
-        {" "}
         <button
           className="bg-green-500 text-white px-4 py-2 rounded-lg mb-4"
           onClick={() => setShowSendRsvpModal(true)}
@@ -171,7 +184,7 @@ const EventDetails = () => {
       <p className="mb-4 text-white">
         Total Participants: {filteredParticipants.length}
       </p>
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar onSearch={handleSearch} onScan={handleQrScan} />
       <ParticipantList
         participants={filteredParticipants}
         onClickParticipant={handleParticipantClick}
