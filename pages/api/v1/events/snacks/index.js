@@ -19,6 +19,7 @@ export default async function handler(req, res) {
 
       const { database, collection } = event;
       const db = mongoose.connection.useDb(database);
+
       const participantSchema = new mongoose.Schema({
         name: { type: String, required: true },
         regNo: { type: String, required: true },
@@ -31,17 +32,23 @@ export default async function handler(req, res) {
       });
 
       const Participant = db.model(collection.participants, participantSchema);
-      const participant = await Participant.findOneAndUpdate(
-        { email },
-        { snacks: true },
-        { new: true }
-      );
+      const participant = await Participant.findOne({ email });
 
       if (!participant) {
         return res
           .status(404)
           .json({ success: false, error: "Participant not found" });
       }
+
+      if (!participant.rsvp || !participant.checkin) {
+        return res.status(400).json({
+          success: false,
+          error: "Participant must RSVP and check-in before claiming snacks.",
+        });
+      }
+
+      participant.snacks = true;
+      await participant.save();
 
       res.status(200).json({ success: true, data: participant });
     } catch (error) {

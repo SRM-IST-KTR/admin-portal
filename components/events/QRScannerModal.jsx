@@ -7,6 +7,7 @@ const QRScannerModal = ({ onClose }) => {
   const [selection, setSelection] = useState("");
   const [scanning, setScanning] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState(null); // Add error state
   const videoRef = useRef(null);
   const codeReader = useRef(null);
 
@@ -51,17 +52,26 @@ const QRScannerModal = ({ onClose }) => {
       setIsSaving(true);
       const { slug, email } = JSON.parse(qrData);
 
+      let response;
       if (selection === "checkin") {
-        await axios.post("/api/v1/events/checkin", { slug, email });
+        response = await axios.post("/api/v1/events/checkin", { slug, email });
       } else if (selection === "snacks") {
-        await axios.post("/api/v1/events/snacks", { slug, email });
+        response = await axios.post("/api/v1/events/snacks", { slug, email });
       }
 
+      // If error occurs, set error state
+      if (!response.data.success) {
+        throw new Error(response.data.error);
+      }
+
+      // Clear error and reset state on success
+      setError(null);
       setQrData("");
       setSelection("");
       setScanning(true);
     } catch (error) {
       console.error("Error saving QR data:", error);
+      setError(error.response ? error.response.data.error : error.message);
     } finally {
       setIsSaving(false);
     }
@@ -96,6 +106,10 @@ const QRScannerModal = ({ onClose }) => {
             <pre className="bg-gray-100 p-2 rounded text-sm text-gray-800 overflow-x-auto mb-4">
               {JSON.stringify(JSON.parse(qrData), null, 2)}
             </pre>
+
+            {error && (
+              <p className="text-red-500 text-center mb-4">{error}</p> // Display error message
+            )}
 
             <div className="flex flex-col space-y-3">
               <label className="flex items-center">
