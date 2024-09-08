@@ -6,12 +6,16 @@ import withAuth from "@/components/withAuth";
 import EventInfo from "@/components/events/EventInfo";
 import ParticipantList from "@/components/events/ParticipantList";
 import ParticipantModal from "@/components/events/ParticipantModal";
+import SearchBar from "@/components/events/SearchBar";
+import SendRsvpModal from "@/components/events/SendRsvpModal";
 
 const EventDetails = () => {
   const [event, setEvent] = useState(null);
   const [participants, setParticipants] = useState([]);
+  const [filteredParticipants, setFilteredParticipants] = useState([]);
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSendRsvpModal, setShowSendRsvpModal] = useState(false);
   const router = useRouter();
   const { slug } = router.query;
 
@@ -26,7 +30,9 @@ const EventDetails = () => {
           const participantResponse = await axios.get(
             `/api/v1/events/participants/${slug}`
           );
-          setParticipants(participantResponse.data.data);
+          const participantsData = participantResponse.data.data;
+          setParticipants(participantsData);
+          setFilteredParticipants(participantsData);
         } catch (error) {
           console.error("Error fetching event data:", error);
         } finally {
@@ -62,6 +68,7 @@ const EventDetails = () => {
       );
       const response = await axios.get(`/api/v1/events/participants/${slug}`);
       setParticipants(response.data.data);
+      setFilteredParticipants(response.data.data);
       handleModalClose();
     } catch (error) {
       console.error("Error updating participant data:", error);
@@ -76,6 +83,21 @@ const EventDetails = () => {
     }));
   };
 
+  const handleSearch = (query) => {
+    const lowerQuery = query.toLowerCase();
+    const filtered = participants.filter(
+      (participant) =>
+        participant.name.toLowerCase().includes(lowerQuery) ||
+        participant.email.toLowerCase().includes(lowerQuery) ||
+        participant.regNo.toLowerCase().includes(lowerQuery)
+    );
+    setFilteredParticipants(filtered);
+  };
+
+  const handleSendRsvpEmails = async (participant) => {
+    await axios.post("/api/v1/email/rsvp", { participant, event });
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -88,10 +110,24 @@ const EventDetails = () => {
     <div className="container mx-auto px-4 py-8 text-black">
       <EventInfo event={event} />
       <h2 className="text-2xl font-bold mb-4 text-white">Participants</h2>
+      <SearchBar onSearch={handleSearch} />
       <ParticipantList
-        participants={participants}
+        participants={filteredParticipants}
         onClickParticipant={handleParticipantClick}
       />
+      <button
+        className="bg-green-500 text-white px-4 py-2 rounded-lg mb-4"
+        onClick={() => setShowSendRsvpModal(true)}
+      >
+        SEND RSVP MAILS
+      </button>
+      {showSendRsvpModal && (
+        <SendRsvpModal
+          participants={filteredParticipants}
+          onClose={() => setShowSendRsvpModal(false)}
+          onSend={handleSendRsvpEmails}
+        />
+      )}
       {selectedParticipant && (
         <ParticipantModal
           participant={selectedParticipant}
