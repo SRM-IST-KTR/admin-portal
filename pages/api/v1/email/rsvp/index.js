@@ -30,7 +30,8 @@ export default async function handler(req, res) {
         .replaceAll("{{event_description}}", event.event_description)
         .replaceAll("{{date}}", event.event_date)
         .replaceAll("{{venue}}", event.venue)
-        .replaceAll("{{prerequisites}}", event.prerequisites);
+        .replaceAll("{{prerequisites}}", event.prerequisites)
+        .replaceAll("{{slug}}", event.slug);
 
       const params = {
         Destination: {

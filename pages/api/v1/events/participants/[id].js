@@ -10,7 +10,6 @@ export default async function handler(req, res) {
 
   if (method === "GET") {
     try {
-      // Fetch participants by event slug
       const event = await Event.findOne({ slug: id });
 
       if (!event) {
@@ -35,7 +34,6 @@ export default async function handler(req, res) {
       res.status(500).json({ success: false, error: "Internal Server Error" });
     }
   } else if (method === "PUT") {
-    // Update participant by email
     try {
       const event = await Event.findOne({
         "collection.participants": { $exists: true },
