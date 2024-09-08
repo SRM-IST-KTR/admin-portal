@@ -1,4 +1,3 @@
-// pages/events/[slug].js
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -9,6 +8,7 @@ import ParticipantModal from "@/components/events/ParticipantModal";
 import SearchBar from "@/components/events/SearchBar";
 import SendRsvpModal from "@/components/events/SendRsvpModal";
 import FilterDropdown from "@/components/events/FilterDropdown";
+import QRScannerModal from "@/components/events/QRScannerModal"; // Import QRScannerModal
 
 const EventDetails = () => {
   const [event, setEvent] = useState(null);
@@ -17,6 +17,7 @@ const EventDetails = () => {
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSendRsvpModal, setShowSendRsvpModal] = useState(false);
+  const [showQRScanner, setShowQRScanner] = useState(false); // State for QR Scanner Modal
   const [filterOptions, setFilterOptions] = useState({
     rsvp: false,
     checkin: false,
@@ -122,6 +123,14 @@ const EventDetails = () => {
     setFilterOptions(filters);
   };
 
+  const handleOpenQRScanner = () => {
+    setShowQRScanner(true);
+  };
+
+  const handleCloseQRScanner = () => {
+    setShowQRScanner(false);
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -146,6 +155,13 @@ const EventDetails = () => {
           onSend={handleSendRsvpEmails}
         />
       )}
+      <button
+        className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4"
+        onClick={handleOpenQRScanner}
+      >
+        OPEN QR SCANNER
+      </button>
+      {showQRScanner && <QRScannerModal onClose={handleCloseQRScanner} />}
       <h2 className="text-2xl font-bold mb-4 text-white">Participants</h2>
       <FilterDropdown onFilterChange={handleFilterChange} />
       <p className="mb-4 text-white">
