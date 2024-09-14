@@ -1,4 +1,3 @@
-// components/events/EventDetails.js
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -9,7 +8,17 @@ import ParticipantModal from "@/components/events/ParticipantModal";
 import SearchBar from "@/components/events/SearchBar";
 import SendRsvpModal from "@/components/events/SendRsvpModal";
 import FilterDropdown from "@/components/events/FilterDropdown";
-import QRScannerModal from "@/components/events/QRScannerModal"; // Import QRScannerModal
+import QRScannerModal from "@/components/events/QRScannerModal";
+
+const convertToCSV = (data) => {
+  const header = Object.keys(data[0]).join(",") + "\n";
+  const rows = data.map((row) =>
+    Object.values(row)
+      .map((value) => `"${value}"`)
+      .join(",")
+  );
+  return header + rows.join("\n");
+};
 
 const EventDetails = () => {
   const [event, setEvent] = useState(null);
@@ -18,7 +27,7 @@ const EventDetails = () => {
   const [selectedParticipant, setSelectedParticipant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSendRsvpModal, setShowSendRsvpModal] = useState(false);
-  const [showQRScanner, setShowQRScanner] = useState(false); // State for QR Scanner Modal
+  const [showQRScanner, setShowQRScanner] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
     rsvp: false,
     checkin: false,
@@ -145,6 +154,21 @@ const EventDetails = () => {
     }
   };
 
+  const handleDownloadCSV = () => {
+    if (filteredParticipants.length > 0) {
+      const csv = convertToCSV(filteredParticipants);
+      const blob = new Blob([csv], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${event?.event_name}_participants.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      console.warn("No participants to download.");
+    }
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -156,7 +180,7 @@ const EventDetails = () => {
   return (
     <div className="container mx-auto px-4 py-8 text-black">
       <EventInfo event={event} />
-      <div className="flex justify-between">
+      <div className="flex max-md:flex-col justify-between">
         <button
           className="bg-green-500 text-white px-4 py-2 rounded-lg mb-4"
           onClick={() => setShowSendRsvpModal(true)}
@@ -175,6 +199,12 @@ const EventDetails = () => {
           onClick={handleOpenQRScanner}
         >
           OPEN QR SCANNER
+        </button>
+        <button
+          className="bg-gray-500 text-white px-4 py-2 rounded-lg mb-4"
+          onClick={handleDownloadCSV}
+        >
+          DOWNLOAD CSV
         </button>
       </div>
 
