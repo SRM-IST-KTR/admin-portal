@@ -22,8 +22,9 @@ export default async function handler(req, res) {
           .json({ success: false, error: "Event not found" });
       }
 
-      const { database, collection } = event;
+      const { database, collection, rsvpLimit } = event;
       const db = mongoose.connection.useDb(database);
+
       const participantSchema = new mongoose.Schema({
         name: { type: String, required: true },
         regNo: { type: String, required: true },
@@ -36,6 +37,23 @@ export default async function handler(req, res) {
       });
 
       const Participant = db.model(collection.participants, participantSchema);
+
+      const rsvpCount = await Participant.countDocuments({ rsvp: true });
+
+      if (rsvpCount >= rsvpLimit) {
+        return res.status(200).send(`
+          <html>
+            <head>
+              <title>RSVP Limit Reached</title>
+            </head>
+            <body style="text-align:center; font-family:Arial, sans-serif;">
+              <h1>All Seats Are Full</h1>
+              <p>We have reached the maximum number of RSVPs for the event: <strong>${event.event_name}</strong>.</p>
+              <p>Please keep an eye on our social media for updates if more seats are released.</p>
+            </body>
+          </html>
+        `);
+      }
 
       const existingParticipant = await Participant.findOne({ email });
       if (!existingParticipant) {

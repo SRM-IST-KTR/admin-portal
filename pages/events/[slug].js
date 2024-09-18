@@ -214,6 +214,8 @@ const EventDetails = () => {
       <p className="mb-4 text-white">
         Total Participants: {filteredParticipants.length}
       </p>
+      <p className="mb-4 text-white"> Venue: {event.venue}</p>
+      <p className="mb-4 text-white"> RSVP Limit: {event.rsvpLimit}</p>
       <SearchBar onSearch={handleSearch} onScan={handleQrScan} />
       <ParticipantList
         participants={filteredParticipants}
