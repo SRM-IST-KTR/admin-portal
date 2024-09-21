@@ -18,16 +18,11 @@ export default function App({ Component, pageProps }) {
       if (timeElapsed > SESSION_TIMEOUT) {
         localStorage.removeItem("user");
         localStorage.removeItem("loginTime");
-        router.push("/");
       }
     }
 
     if (!user && router.pathname !== "/") {
       router.push("/");
-    }
-
-    if (user && router.pathname === "/") {
-      router.push("/events");
     }
   }, [router]);
 
