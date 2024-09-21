@@ -15,6 +15,7 @@
     "@zxing/library": "^0.21.3",
     "aws-sdk": "^2.1691.0",
     "axios": "^1.7.7",
+    "chart.js": "^4.4.4",
     "dotenv": "^16.4.5",
     "mongoose": "^8.6.1",
     "next": "14.2.8",
@@ -22,6 +23,7 @@
     "nodemailer-ses-transport": "^1.5.1",
     "qrcode": "^1.5.4",
     "react": "^18",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
     "sharp": "^0.33.5"
   },

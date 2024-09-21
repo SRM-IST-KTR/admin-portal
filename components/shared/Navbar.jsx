@@ -34,6 +34,14 @@ const Navbar = () => {
                 </a>
               </li>
               <li>
+                <a
+                  href="/recruitment"
+                  className="text-white hover:text-gray-400 transition duration-300"
+                >
+                  Recruitment
+                </a>
+              </li>
+              <li>
                 <button
                   onClick={handleLogout}
                   className="bg-red-600 hover:bg-red-500 text-white py-2 px-4 rounded transition duration-300"
