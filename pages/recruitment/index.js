@@ -1,222 +1,310 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Pie, Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-} from "chart.js";
-import withAuth from "@/components/withAuth";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
 
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement
-);
+// Ensure all required components are registered
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const Recruitment = () => {
-  const [recruitmentData, setRecruitmentData] = useState([]);
-  const [showTable, setShowTable] = useState(false);
-  const [domains, setDomains] = useState({});
-  const [subDomains, setSubDomains] = useState({});
-  const [firstYearCount, setFirstYearCount] = useState(0);
-  const [secondYearCount, setSecondYearCount] = useState(0);
+    const [recruitmentData, setRecruitmentData] = useState([]);
+    const [showTable, setShowTable] = useState(false);
+    const [showMoreAnalytics, setShowMoreAnalytics] = useState(false);
+    const [domains, setDomains] = useState({});
+    const [subDomains, setSubDomains] = useState({});
+    const [firstYearCount, setFirstYearCount] = useState(0);
+    const [secondYearCount, setSecondYearCount] = useState(0);
+    const [yearDomainData, setYearDomainData] = useState({});
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get("/api/v1/recruitment");
-        const data = response.data.data;
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get("/api/v1/recruitment");
+                const data = response.data.data;
 
-        setRecruitmentData(data);
-        processDomains(data);
-      } catch (error) {
-        console.error("Error fetching recruitment data:", error);
-      }
-    };
+                setRecruitmentData(data);
+                processDomains(data);
+            } catch (error) {
+                console.error("Error fetching recruitment data:", error);
+            }
+        };
 
-    fetchData();
-  }, []);
+        fetchData();
+    }, []);
 
-  const processDomains = (data) => {
-    const domainCount = {};
-    const subDomainCount = {
-      Technical: {},
-      Creatives: {},
-      Corporate: {},
-    };
+    const processDomains = (data) => {
+        const domainCount = {};
+        const subDomainCount = {
+            Technical: { firstYear: {}, secondYear: {} },
+            Creatives: { firstYear: {}, secondYear: {} },
+            Corporate: { firstYear: {}, secondYear: {} }
+        };
 
-    let firstYear = 0;
-    let secondYear = 0;
+        const yearDomainData = {
+            Technical: { firstYear: 0, secondYear: 0 },
+            Creatives: { firstYear: 0, secondYear: 0 },
+            Corporate: { firstYear: 0, secondYear: 0 }
+        };
 
-    data.forEach((item) => {
-      const domainKeys = Object.keys(item.domain);
-      domainKeys.forEach((domain) => {
-        domainCount[domain] = (domainCount[domain] || 0) + 1;
+        let firstYear = 0;
+        let secondYear = 0;
 
-        item.domain[domain].forEach((subDomain) => {
-          subDomainCount[domain][subDomain] =
-            (subDomainCount[domain][subDomain] || 0) + 1;
+        data.forEach((item) => {
+            const yearKey = item.year === "1st" ? "firstYear" : "secondYear";
+
+            const domainKeys = Object.keys(item.domain);
+            domainKeys.forEach((domain) => {
+                domainCount[domain] = (domainCount[domain] || 0) + 1;
+
+                yearDomainData[domain][yearKey] += 1;
+
+                item.domain[domain].forEach((subDomain) => {
+                    subDomainCount[domain][yearKey][subDomain] =
+                        (subDomainCount[domain][yearKey][subDomain] || 0) + 1;
+                });
+            });
+
+            if (item.year === "1st") firstYear++;
+            else if (item.year === "2nd") secondYear++;
         });
-      });
 
-      // Increment the year counts based on the year property as a string
-      if (item.year === "1st") firstYear++;
-      else if (item.year === "2nd") secondYear++;
-    });
+        setDomains(domainCount);
+        setSubDomains(subDomainCount);  // Now subDomains contains separate year counts
+        setFirstYearCount(firstYear);
+        setSecondYearCount(secondYear);
+        setYearDomainData(yearDomainData);  // Set year-wise domain data
+    };
 
-    setDomains(domainCount);
-    setSubDomains(subDomainCount);
-    setFirstYearCount(firstYear);
-    setSecondYearCount(secondYear);
-  };
+    const handleShowTable = () => {
+        setShowTable(!showTable);
+    };
 
-  const handleShowTable = () => {
-    setShowTable(!showTable);
-  };
+    const handleShowMoreAnalytics = () => {
+        setShowMoreAnalytics(!showMoreAnalytics);
+    };
 
-  const totalRegistrations = recruitmentData.length;
+    // Define the yearWiseDomainChartData properly
+    const yearWiseDomainChartData = {
+        labels: ["Technical", "Creatives", "Corporate"],
+        datasets: [
+            {
+                label: '1st Year',
+                data: [
+                    yearDomainData.Technical?.firstYear || 0,
+                    yearDomainData.Creatives?.firstYear || 0,
+                    yearDomainData.Corporate?.firstYear || 0
+                ],
+                backgroundColor: '#36A2EB'
+            },
+            {
+                label: '2nd Year',
+                data: [
+                    yearDomainData.Technical?.secondYear || 0,
+                    yearDomainData.Creatives?.secondYear || 0,
+                    yearDomainData.Corporate?.secondYear || 0
+                ],
+                backgroundColor: '#FF6384'
+            }
+        ]
+    };
 
-  const domainChartData = {
-    labels: Object.keys(domains),
-    datasets: [
-      {
-        label: "Number of Registrations",
-        data: Object.values(domains),
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-      },
-    ],
-  };
+    const totalRegistrations = recruitmentData.length;
 
-  const technicalSubDomainData = {
-    labels: subDomains.Technical ? Object.keys(subDomains.Technical) : [],
-    datasets: [
-      {
-        label: "Technical Subdomain Distribution",
-        data: subDomains.Technical ? Object.values(subDomains.Technical) : [],
-        backgroundColor: "#36A2EB",
-      },
-    ],
-  };
+    const domainChartData = {
+        labels: Object.keys(domains),
+        datasets: [{
+            label: 'Number of Registrations',
+            data: Object.values(domains),
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+        }],
+    };
 
-  const creativeSubDomainData = {
-    labels: subDomains.Creatives ? Object.keys(subDomains.Creatives) : [],
-    datasets: [
-      {
-        label: "Creative Subdomain Distribution",
-        data: subDomains.Creatives ? Object.values(subDomains.Creatives) : [],
-        backgroundColor: "#FFCE56",
-      },
-    ],
-  };
+    // Ensure subDomains.Technical and other subDomains exist
+    const technicalSubdomainByYearData = {
+        labels: subDomains.Technical ? Object.keys(subDomains.Technical.firstYear || {}) : [], // Ensure subDomains.Technical exists
+        datasets: [
+            {
+                label: '1st Year',
+                data: subDomains.Technical ? Object.keys(subDomains.Technical.firstYear || {}).map(subdomain => subDomains.Technical.firstYear[subdomain] || 0) : [],
+                backgroundColor: '#36A2EB'
+            },
+            {
+                label: '2nd Year',
+                data: subDomains.Technical ? Object.keys(subDomains.Technical.secondYear || {}).map(subdomain => subDomains.Technical.secondYear[subdomain] || 0) : [],
+                backgroundColor: '#FF6384'
+            }
+        ]
+    };
 
-  const corporateSubDomainData = {
-    labels: subDomains.Corporate ? Object.keys(subDomains.Corporate) : [],
-    datasets: [
-      {
-        label: "Corporate Subdomain Distribution",
-        data: subDomains.Corporate ? Object.values(subDomains.Corporate) : [],
-        backgroundColor: "#FF6384",
-      },
-    ],
-  };
+    const creativeSubdomainByYearData = {
+        labels: subDomains.Creatives ? Object.keys(subDomains.Creatives.firstYear || {}) : [], // Ensure subDomains.Creatives exists
+        datasets: [
+            {
+                label: '1st Year',
+                data: subDomains.Creatives ? Object.keys(subDomains.Creatives.firstYear || {}).map(subdomain => subDomains.Creatives.firstYear[subdomain] || 0) : [],
+                backgroundColor: '#36A2EB'
+            },
+            {
+                label: '2nd Year',
+                data: subDomains.Creatives ? Object.keys(subDomains.Creatives.secondYear || {}).map(subdomain => subDomains.Creatives.secondYear[subdomain] || 0) : [],
+                backgroundColor: '#FF6384'
+            }
+        ]
+    };
 
-  return (
-    <div className="p-5">
-      <h1 className="text-2xl font-bold mb-4">Recruitment Data Statistics</h1>
-      <div className="text-lg font-bold mb-4 text-center">
-        Total Registrations:{" "}
-        <span className="text-xl">{totalRegistrations}</span>
-      </div>
-      <div className="flex justify-center flex-row gap-10">
-        <div className="text-lg mb-4 text-center">
-          First Year: <span className="text-xl">{firstYearCount}</span>
+    // Subdomain Distribution by domain only (not by year)
+    const technicalSubDomainData = {
+        labels: subDomains.Technical ? Object.keys(subDomains.Technical.firstYear || {}) : [],
+        datasets: [{
+            label: 'Technical Subdomain Distribution',
+            data: subDomains.Technical ? Object.keys(subDomains.Technical.firstYear || {}).map(subdomain => (subDomains.Technical.firstYear[subdomain] || 0) + (subDomains.Technical.secondYear[subdomain] || 0)) : [],
+            backgroundColor: '#36A2EB',
+        }],
+    };
+
+    const creativeSubDomainData = {
+        labels: subDomains.Creatives ? Object.keys(subDomains.Creatives.firstYear || {}) : [],
+        datasets: [{
+            label: 'Creative Subdomain Distribution',
+            data: subDomains.Creatives ? Object.keys(subDomains.Creatives.firstYear || {}).map(subdomain => (subDomains.Creatives.firstYear[subdomain] || 0) + (subDomains.Creatives.secondYear[subdomain] || 0)) : [],
+            backgroundColor: '#FFCE56',
+        }],
+    };
+
+    const corporateSubDomainData = {
+        labels: subDomains.Corporate ? Object.keys(subDomains.Corporate.firstYear || {}) : [],
+        datasets: [{
+            label: 'Corporate Subdomain Distribution',
+            data: subDomains.Corporate ? Object.keys(subDomains.Corporate.firstYear || {}).map(subdomain => (subDomains.Corporate.firstYear[subdomain] || 0) + (subDomains.Corporate.secondYear[subdomain] || 0)) : [],
+            backgroundColor: '#FF6384',
+        }],
+    };
+
+    return (
+        <div className="p-5">
+            <h1 className="text-2xl font-bold mb-4">Recruitment Data Statistics</h1>
+            <div className="text-lg font-bold mb-4 text-center">
+                Total Registrations: <span className="text-xl">{totalRegistrations}</span>
+            </div>
+            <div className="flex justify-center flex-row gap-10">
+                <div className="text-lg mb-4 text-center">
+                    First Year: <span className="text-xl">{firstYearCount}</span>
+                </div>
+                <div className="text-lg mb-4 text-center">
+                    Second Year: <span className="text-xl">{secondYearCount}</span>
+                </div>
+            </div>
+            <div className=" flex justify-center h-96">
+                <Pie data={domainChartData} options={{ responsive: true, maintainAspectRatio: true }} />
+            </div>
+
+            <h2 className="text-xl mb-2 mt-16">Subdomain Distribution</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                <div className="shadow-lg p-4">
+                    <Bar data={technicalSubDomainData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />
+                </div>
+                <div className="shadow-lg p-4">
+                    <Bar data={creativeSubDomainData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />
+                </div>
+                <div className="shadow-lg p-4">
+                    <Bar data={corporateSubDomainData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />
+                </div>
+            </div>
+
+            <div className="flex justify-center gap-8 mb-5">
+                <button
+                    onClick={handleShowMoreAnalytics}
+                    className="bg-green-500 text-white px-4 py-2 rounded"
+                >
+                    {showMoreAnalytics ? "Hide More Analytics" : "Show More Analytics"}
+                </button>
+
+                <button
+                    onClick={handleShowTable}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                    {showTable ? "Hide Records" : "Show Records"}
+                </button>
+            </div>
+
+            {showTable && (
+                <div className="overflow-x-auto">
+                    <table className="min-w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr className="bg-gray-100 dark:text-black">
+                                <th className="border border-gray-300 px-4 py-2">Name</th>
+                                <th className="border border-gray-300 px-4 py-2">Department</th>
+                                <th className="border border-gray-300 px-4 py-2">Year</th>
+                                <th className="border border-gray-300 px-4 py-2">Domain</th>
+                                <th className="border border-gray-300 px-4 py-2">Subdomain</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {recruitmentData.map((record) => (
+                                <tr key={record._id}>
+                                    <td className="border border-gray-300 px-4 py-2">{record.name}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.dept}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.year}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{Object.keys(record.domain).join(", ")}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.domain[Object.keys(record.domain)[0]].join(", ")}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {showMoreAnalytics && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                    <div className="shadow-lg p-4">
+                        <Bar
+                            data={yearWiseDomainChartData}
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: { stacked: true },
+                                    y: { stacked: true, beginAtZero: true }
+                                }
+                            }}
+                            height={200}
+                        />
+                    </div>
+
+                    <div className="shadow-lg p-4">
+                        <Bar
+                            data={technicalSubdomainByYearData}
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: { stacked: true },
+                                    y: { stacked: true, beginAtZero: true }
+                                }
+                            }}
+                            height={200}
+                        />
+                    </div>
+
+                    <div className="shadow-lg p-4">
+                        <Bar
+                            data={creativeSubdomainByYearData}
+                            options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: { stacked: true },
+                                    y: { stacked: true, beginAtZero: true }
+                                }
+                            }}
+                            height={200}
+                        />
+                    </div>
+                </div>
+            )}
+
         </div>
-        <div className="text-lg mb-4 text-center">
-          Second Year: <span className="text-xl">{secondYearCount}</span>
-        </div>
-      </div>
-      <div className=" flex justify-center h-96">
-        <Pie
-          data={domainChartData}
-          options={{ responsive: true, maintainAspectRatio: true }}
-        />
-      </div>
-      <h2 className="text-xl mb-2 mt-16">Subdomain Distribution</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-        <div className="shadow-lg p-4">
-          <Bar
-            data={technicalSubDomainData}
-            options={{ responsive: true, maintainAspectRatio: false }}
-            height={200}
-          />
-        </div>
-        <div className="shadow-lg p-4">
-          <Bar
-            data={creativeSubDomainData}
-            options={{ responsive: true, maintainAspectRatio: false }}
-            height={200}
-          />
-        </div>
-        <div className="shadow-lg p-4">
-          <Bar
-            data={corporateSubDomainData}
-            options={{ responsive: true, maintainAspectRatio: false }}
-            height={200}
-          />
-        </div>
-      </div>
-      <button
-        onClick={handleShowTable}
-        className="bg-blue-500 text-white px-4 py-2 rounded mb-5"
-      >
-        {showTable ? "Hide Records" : "Show Records"}
-      </button>
-      {showTable && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-300 px-4 py-2">Name</th>
-                <th className="border border-gray-300 px-4 py-2">Department</th>
-                <th className="border border-gray-300 px-4 py-2">Year</th>
-                <th className="border border-gray-300 px-4 py-2">Domain</th>
-                <th className="border border-gray-300 px-4 py-2">Subdomain</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recruitmentData.map((record) => (
-                <tr key={record._id}>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {record.name}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {record.dept}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {record.year}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {Object.keys(record.domain).join(", ")}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {record.domain[Object.keys(record.domain)[0]].join(", ")}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
+    );
 };
 
-export default withAuth(Recruitment);
+export default Recruitment;
