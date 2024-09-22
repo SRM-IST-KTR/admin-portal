@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Pie, Bar } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
+import withAuth from "@/components/withAuth";
 
 // Ensure all required components are registered
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
@@ -307,4 +308,4 @@ const Recruitment = () => {
     );
 };
 
-export default Recruitment;
+export default withAuth(Recruitment);
