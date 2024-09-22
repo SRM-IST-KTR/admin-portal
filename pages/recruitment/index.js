@@ -103,7 +103,7 @@ const Recruitment = () => {
                     yearDomainData.Creatives?.secondYear || 0,
                     yearDomainData.Corporate?.secondYear || 0
                 ],
-                backgroundColor: '#FF6384'
+                backgroundColor: '#F4CE14'
             }
         ]
     };
@@ -126,12 +126,12 @@ const Recruitment = () => {
             {
                 label: '1st Year',
                 data: subDomains.Technical ? Object.keys(subDomains.Technical.firstYear || {}).map(subdomain => subDomains.Technical.firstYear[subdomain] || 0) : [],
-                backgroundColor: '#36A2EB'
+                backgroundColor: '#36BA98'
             },
             {
                 label: '2nd Year',
                 data: subDomains.Technical ? Object.keys(subDomains.Technical.secondYear || {}).map(subdomain => subDomains.Technical.secondYear[subdomain] || 0) : [],
-                backgroundColor: '#FF6384'
+                backgroundColor: '#E76F51'
             }
         ]
     };
@@ -142,12 +142,12 @@ const Recruitment = () => {
             {
                 label: '1st Year',
                 data: subDomains.Creatives ? Object.keys(subDomains.Creatives.firstYear || {}).map(subdomain => subDomains.Creatives.firstYear[subdomain] || 0) : [],
-                backgroundColor: '#36A2EB'
+                backgroundColor: '#59D5E0'
             },
             {
                 label: '2nd Year',
                 data: subDomains.Creatives ? Object.keys(subDomains.Creatives.secondYear || {}).map(subdomain => subDomains.Creatives.secondYear[subdomain] || 0) : [],
-                backgroundColor: '#FF6384'
+                backgroundColor: '#FFA447'
             }
         ]
     };
