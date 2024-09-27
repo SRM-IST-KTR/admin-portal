@@ -116,7 +116,7 @@ const Recruitment = () => {
         datasets: [{
             label: 'Number of Registrations',
             data: Object.values(domains),
-            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+            backgroundColor: ['#FFCE56', '#36A2EB', '#FF6384'],
         }],
     };
 
