@@ -34,10 +34,10 @@ const FilterDropdown = ({ onFilterChange }) => {
                 Filter
             </button>
             {isOpen && (
-                <div className=" right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg">
+                <div className=" right-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg text-black">
                     <div className="p-2">
                         {Object.keys(filters).map((filterName) => (
-                            <div key={filterName} className="flex items-center mt-2">
+                            <div key={filterName} className="flex items-center mt-2 text-black">
                                 <input
                                     type="checkbox"
                                     name={filterName}
@@ -45,7 +45,7 @@ const FilterDropdown = ({ onFilterChange }) => {
                                     onChange={handleFilterChange}
                                     id={filterName}
                                 />
-                                <label htmlFor={filterName} className="ml-2">
+                                <label htmlFor={filterName} className="ml-2 text-black">
                                     {filterName}
                                 </label>
                             </div>
