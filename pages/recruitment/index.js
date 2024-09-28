@@ -3,12 +3,25 @@ import axios from "axios";
 import { Pie, Bar } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
 import withAuth from "@/components/withAuth";
+import FilterDropdown from "@/components/recruitments/FilterDropdown";
 
 // Ensure all required components are registered
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
+const convertToCSV = (data) => {
+    const header = "Name,Email,RegNo,PhoneNo,Year,Dept,Domain,Subdomain,Status\n";
+    const rows = data.map((row) => {
+        const domain = Object.keys(row.domain).join(", ");
+        const subdomain = Object.values(row.domain).flat().join(", ");
+        return `${row.name},${row.email},${row.regNo},${row.phoneNo},${row.year},${row.dept},${domain},${subdomain},${row.status}`;
+    });
+    return header + rows.join("\n");
+};
+
 const Recruitment = () => {
     const [recruitmentData, setRecruitmentData] = useState([]);
+    const [filteredRecruitmentData, setFilteredRecruitmentData] = useState([]);
+    const [activeFilters, setActiveFilters] = useState({});
     const [showTable, setShowTable] = useState(false);
     const [showMoreAnalytics, setShowMoreAnalytics] = useState(false);
     const [domains, setDomains] = useState({});
@@ -22,8 +35,8 @@ const Recruitment = () => {
             try {
                 const response = await axios.get("/api/v1/recruitment");
                 const data = response.data.data;
-
                 setRecruitmentData(data);
+                setFilteredRecruitmentData(data);
                 processDomains(data);
             } catch (error) {
                 console.error("Error fetching recruitment data:", error);
@@ -32,6 +45,26 @@ const Recruitment = () => {
 
         fetchData();
     }, []);
+
+    useEffect(() => {
+        applyFilters();
+    }, [activeFilters]);
+
+    const handleDownloadCSV = () => {
+        if (filteredRecruitmentData.length > 0) {
+            const csv = convertToCSV(filteredRecruitmentData);
+            const blob = new Blob([csv], { type: "text/csv" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `recruitmentData.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            console.warn("No participants to download.");
+        }
+    };
+
 
     const processDomains = (data) => {
         const domainCount = {};
@@ -181,6 +214,37 @@ const Recruitment = () => {
         }],
     };
 
+    const applyFilters = () => {
+        let filteredData = recruitmentData;
+
+        // Apply domain filters (Technical, Creatives, Corporate)
+        if (activeFilters.Technical || activeFilters.Creatives || activeFilters.Corporate) {
+            filteredData = filteredData.filter((record) => {
+                if (activeFilters.Technical && record.domain['Technical']) return true;
+                if (activeFilters.Creatives && record.domain['Creatives']) return true;
+                if (activeFilters.Corporate && record.domain['Corporate']) return true;
+                return false;
+            });
+        }
+
+        // Apply task shortlisted filter
+        if (activeFilters.taskShortlisted) {
+            filteredData = filteredData.filter((record) => record.status === "Task");
+        }
+
+        // Apply interview shortlisted filter
+        if (activeFilters.interviewShortlisted) {
+            filteredData = filteredData.filter((record) => record.status === "Interview");
+        }
+
+        setFilteredRecruitmentData(filteredData);  // Update the filtered data
+    };
+
+    // Handle filter change from the dropdown
+    const handleFilterChange = (filters) => {
+        setActiveFilters(filters);  // Update the active filters state
+    };
+
     return (
         <div className="p-5">
             <h1 className="text-2xl font-bold mb-4">Recruitment Data Statistics</h1>
@@ -227,34 +291,6 @@ const Recruitment = () => {
                     {showTable ? "Hide Records" : "Show Records"}
                 </button>
             </div>
-
-            {showTable && (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full border-collapse border border-gray-300">
-                        <thead>
-                            <tr className="bg-gray-100 dark:text-black">
-                                <th className="border border-gray-300 px-4 py-2">Name</th>
-                                <th className="border border-gray-300 px-4 py-2">Department</th>
-                                <th className="border border-gray-300 px-4 py-2">Year</th>
-                                <th className="border border-gray-300 px-4 py-2">Domain</th>
-                                <th className="border border-gray-300 px-4 py-2">Subdomain</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {recruitmentData.map((record) => (
-                                <tr key={record._id}>
-                                    <td className="border border-gray-300 px-4 py-2">{record.name}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{record.dept}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{record.year}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{Object.keys(record.domain).join(", ")}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{record.domain[Object.keys(record.domain)[0]].join(", ")}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
-
             {showMoreAnalytics && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
                     <div className="shadow-lg p-4">
@@ -303,8 +339,48 @@ const Recruitment = () => {
                     </div>
                 </div>
             )}
+            {showTable && (
+                <div className="overflow-x-auto">
+                    <div className="flex flex-row gap-4">
+                        <FilterDropdown onFilterChange={handleFilterChange} />
 
-        </div>
+                        <button
+                            className="bg-gray-500 text-white px-4 py-2 rounded-lg mb-4"
+                            onClick={handleDownloadCSV}
+                        >
+                            DOWNLOAD CSV
+                        </button>
+                    </div>
+                    <table className="min-w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr className="bg-gray-100 dark:text-black">
+                                <th className="border border-gray-300 px-4 py-2">Name</th>
+                                <th className="border border-gray-300 px-4 py-2">Email</th>
+                                <th className="border border-gray-300 px-4 py-2">Department</th>
+                                <th className="border border-gray-300 px-4 py-2">Year</th>
+                                <th className="border border-gray-300 px-4 py-2">Domain</th>
+                                <th className="border border-gray-300 px-4 py-2">Subdomain</th>
+                                <th className="border border-gray-300 px-4 py-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredRecruitmentData.map((record) => (
+                                <tr key={record._id}>
+                                    <td className="border border-gray-300 px-4 py-2">{record.name}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.email}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.dept}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.year}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{Object.keys(record.domain).join(", ")}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{Object.values(record.domain).flat().join(", ")}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.status}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+        </div >
     );
 };
 
