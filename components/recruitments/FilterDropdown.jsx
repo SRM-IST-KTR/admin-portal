@@ -6,8 +6,9 @@ const FilterDropdown = ({ onFilterChange }) => {
         Technical: false,
         Creatives: false,
         Corporate: false,
-        taskShortlisted: false,
+        taskSubmitted: false,
         interviewShortlisted: false,
+        onboarding: false,
     });
 
     const handleFilterChange = (e) => {
