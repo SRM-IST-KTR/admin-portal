@@ -214,6 +214,13 @@ const Recruitment = () => {
         }],
     };
 
+    const getStatusStyle = (status) => {
+        if (status === "taskSubmitted") return { color: "#FF9800" }; // Orange text
+        if (status === "interviewShortlisted") return { backgroundColor: "#FFEB3B", fontWeight: "bold" }; // Yellow background, bold text
+        if (status === "onboarding") return { backgroundColor: "#4CAF50", fontWeight: "900" }; // Green + Extra Bold text
+        return {};
+    };
+
     const applyFilters = () => {
         let filteredData = recruitmentData;
 
@@ -228,13 +235,18 @@ const Recruitment = () => {
         }
 
         // Apply task shortlisted filter
-        if (activeFilters.taskShortlisted) {
-            filteredData = filteredData.filter((record) => record.status === "Task");
+        if (activeFilters.taskSubmitted) {
+            filteredData = filteredData.filter((record) => record.status === "taskSubmitted");
         }
 
         // Apply interview shortlisted filter
         if (activeFilters.interviewShortlisted) {
-            filteredData = filteredData.filter((record) => record.status === "Interview");
+            filteredData = filteredData.filter((record) => record.status === "interviewShortlisted");
+        }
+
+        // Apply Onboarding shortlisted filter
+        if (activeFilters.onboarding) {
+            filteredData = filteredData.filter((record) => record.status === "onboarding");
         }
 
         setFilteredRecruitmentData(filteredData);  // Update the filtered data
@@ -372,7 +384,7 @@ const Recruitment = () => {
                                     <td className="border border-gray-300 px-4 py-2">{record.year}</td>
                                     <td className="border border-gray-300 px-4 py-2">{Object.keys(record.domain).join(", ")}</td>
                                     <td className="border border-gray-300 px-4 py-2">{Object.values(record.domain).flat().join(", ")}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{record.status}</td>
+                                    <td className="border border-gray-300 px-4 py-2" style={getStatusStyle(record.status)}>{record.status}</td>
                                 </tr>
                             ))}
                         </tbody>
