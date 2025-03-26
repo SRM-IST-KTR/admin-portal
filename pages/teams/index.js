@@ -53,7 +53,11 @@ export default function Teams() {
     const fetchTeams = async () => {
         try {
             const response = await axios.get("/api/v1/teams");
-            setTeams(response.data.data);
+            // Sort teams by name in ascending order
+            const sortedTeams = response.data.data.sort((a, b) =>
+                a.name.localeCompare(b.name)
+            );
+            setTeams(sortedTeams);
             setLoading(false);
         } catch (err) {
             setError("Failed to fetch team members");
