@@ -35,13 +35,22 @@ export default async function handler(req, res) {
     }
   } else if (method === "PUT") {
     try {
-      const event = await Event.findOne({
-        "collection.participants": { $exists: true },
-      });
+      const { eventSlug, ...updateData } = req.body;
+
+      if (!eventSlug) {
+        return res.status(400).json({
+          success: false,
+          error: "Event slug is required"
+        });
+      }
+
+      const event = await Event.findOne({ slug: eventSlug });
+
       if (!event) {
-        return res
-          .status(404)
-          .json({ success: false, error: "Event not found." });
+        return res.status(404).json({
+          success: false,
+          error: "Event not found"
+        });
       }
 
       const { database, collection } = event;
@@ -61,14 +70,15 @@ export default async function handler(req, res) {
 
       const updatedParticipant = await Participant.findOneAndUpdate(
         { email: id },
-        req.body,
+        updateData,
         { new: true }
       );
 
       if (!updatedParticipant) {
-        return res
-          .status(404)
-          .json({ success: false, error: "Participant not found." });
+        return res.status(404).json({
+          success: false,
+          error: "Participant not found"
+        });
       }
 
       res.status(200).json({
