@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
-import withAuth from "@/components/withAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { ChevronLeft, ChevronRight, Save, Loader2, CheckCircle } from "lucide-react";
 
 const AddEvent = ({ onClose }) => {
     const router = useRouter();
+    const { user } = useAuth();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -98,7 +99,10 @@ const AddEvent = ({ onClose }) => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await axios.post("/api/v1/events/createEvent", formData);
+            await axios.post("/api/v1/events/createEvent", {
+                ...formData,
+                createdBy: user._id
+            });
             setShowSuccess(true);
             setTimeout(() => {
                 onClose();
@@ -646,4 +650,4 @@ const AddEvent = ({ onClose }) => {
     );
 };
 
-export default withAuth(AddEvent);
+export default AddEvent;

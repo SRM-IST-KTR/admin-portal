@@ -16,7 +16,7 @@ const getInitials = (name) => {
         .slice(0, 2);
 };
 
-export default function Teams() {
+function Teams() {
     const router = useRouter();
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -616,4 +616,6 @@ export default function Teams() {
             </div>
         </div>
     );
-} 
+}
+
+export default withAuth(Teams); 
