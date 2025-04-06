@@ -381,4 +381,4 @@ function Logs() {
     );
 }
 
-export default withAuth(Logs, "admin"); 
+export default withAuth(Logs); 

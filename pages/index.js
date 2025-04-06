@@ -75,12 +75,12 @@ export default function Home() {
 
       if (response.data.success) {
         const userData = response.data.user;
-      const currentTime = new Date().getTime();
+        const currentTime = new Date().getTime();
         const isUserAdmin = userData.role === "admin";
 
         // Store user info in localStorage
         localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("loginTime", currentTime.toString());
+        localStorage.setItem("loginTime", currentTime.toString());
         localStorage.setItem("isAdmin", isUserAdmin.toString());
 
         // Update global auth state
@@ -93,7 +93,7 @@ export default function Home() {
           fetchPendingUsers();
         }
 
-      router.push("/");
+        router.push("/");
       } else {
         setError(response.data.message || "Login failed");
       }
@@ -137,7 +137,7 @@ export default function Home() {
           </p>
         </div>
 
-      {!user ? (
+        {!user ? (
           <div className="max-w-md mx-auto bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-semibold mb-2 text-gray-900">Welcome Back</h2>
@@ -145,33 +145,33 @@ export default function Home() {
             </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
-          <div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email
                 </label>
-            <input
+                <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   placeholder="Enter your email"
-              required
-            />
-          </div>
+                  required
+                />
+              </div>
 
-          <div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Password
                 </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   placeholder="Enter your password"
-              required
-            />
-          </div>
+                  required
+                />
+              </div>
 
               {error && (
                 <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-lg text-sm">
@@ -180,8 +180,8 @@ export default function Home() {
               )}
 
               <div>
-          <button
-            type="submit"
+                <button
+                  type="submit"
                   disabled={loading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02]"
                 >
@@ -199,10 +199,10 @@ export default function Home() {
                     className="text-blue-600 hover:text-blue-800 font-medium"
                   >
                     Sign up
-          </button>
+                  </button>
                 </p>
               </div>
-        </form>
+            </form>
           </div>
         ) : (
           <div className="max-w-6xl mx-auto">
@@ -221,8 +221,8 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <button
-            onClick={() => router.push("/events")}
+                <button
+                  onClick={() => router.push("/events")}
                   className="group bg-gray-50 hover:bg-gray-100 p-6 rounded-xl border border-gray-200 transition-all transform hover:scale-[1.02]"
                 >
                   <div className="flex items-center gap-4">
@@ -234,10 +234,10 @@ export default function Home() {
                       <p className="text-gray-500 text-sm">Manage and track event participants</p>
                     </div>
                   </div>
-          </button>
+                </button>
 
-          <button
-            onClick={() => router.push("/recruitment")}
+                <button
+                  onClick={() => router.push("/recruitment")}
                   className="group bg-gray-50 hover:bg-gray-100 p-6 rounded-xl border border-gray-200 transition-all transform hover:scale-[1.02]"
                 >
                   <div className="flex items-center gap-4">
@@ -382,13 +382,13 @@ export default function Home() {
                       className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                     >
                       View All Logs
-          </button>
+                    </button>
                   </div>
                 </div>
               )}
             </div>
-        </div>
-      )}
+          </div>
+        )}
       </div>
     </div>
   );

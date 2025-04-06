@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import withAuth from "@/components/withAuth";
-import { Plus, Edit2, Trash2, X, Save, Loader2, AlertCircle } from "lucide-react";
+import { Plus, Edit2, Trash2, X, Save, Loader2, AlertCircle, UserPlus, Pencil } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { checkActionPermission } from "@/utils/checkPermission";
 
 const POSITIONS = ['President', 'Vice President', 'Director', 'Member', 'Lead', 'Associate', 'Admin', 'Alumni'];
 const DOMAINS = ['President', 'Vice President', 'Technical', 'Corporate', 'Creatives'];
@@ -38,6 +40,11 @@ function Teams() {
             website: "",
         },
     });
+
+    const { user: authUser } = useAuth();
+    const canCreateTeam = checkActionPermission(authUser, 'create:team');
+    const canEditTeam = checkActionPermission(authUser, 'edit:team');
+    const canDeleteTeam = checkActionPermission(authUser, 'delete:team');
 
     useEffect(() => {
         // Check if user is admin
@@ -345,13 +352,15 @@ function Teams() {
             <div className="container mx-auto px-4">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-900">Team Members</h1>
-                    <button
-                        onClick={() => setShowAddModal(true)}
-                        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        <Plus className="w-5 h-5" />
-                        Add Member
-                    </button>
+                    {canCreateTeam && (
+                        <button
+                            onClick={() => setShowAddModal(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center"
+                        >
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Add Team Member
+                        </button>
+                    )}
                 </div>
 
                 {error && (
@@ -404,30 +413,22 @@ function Teams() {
                                 </div>
 
                                 <div className="flex gap-2">
-                                    {editingMember?._id === member._id ? (
-                                        <button
-                                            onClick={() => handleSave(editingMember)}
-                                            className="text-green-600 hover:text-green-700"
-                                            title="Save changes"
-                                        >
-                                            <Save className="w-5 h-5" />
-                                        </button>
-                                    ) : (
+                                    {canEditTeam && (
                                         <button
                                             onClick={() => handleEdit(member)}
-                                            className="text-blue-600 hover:text-blue-700"
-                                            title="Edit member"
+                                            className="text-blue-600 hover:text-blue-800 mr-3"
                                         >
-                                            <Edit2 className="w-5 h-5" />
+                                            <Pencil className="w-5 h-5" />
                                         </button>
                                     )}
-                                    <button
-                                        onClick={() => handleDelete(member._id)}
-                                        className="text-red-600 hover:text-red-700"
-                                        title="Delete member"
-                                    >
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
+                                    {canDeleteTeam && (
+                                        <button
+                                            onClick={() => handleDelete(member._id)}
+                                            className="text-red-600 hover:text-red-800"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 

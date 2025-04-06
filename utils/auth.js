@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { hasPermission } from "./permissions";
 
 export const verifyToken = (token) => {
     try {
@@ -36,11 +37,23 @@ export const withAuth = (handler, allowedRoles = []) => {
 
             const decoded = await verifyToken(token);
 
-            if (allowedRoles.length > 0 && !allowedRoles.includes(decoded.role)) {
-                return res.status(403).json({ success: false, error: "Forbidden" });
+            // Store the user in the request
+            req.user = decoded;
+
+            // If allowedRoles is empty, use the new permissions system
+            if (allowedRoles.length === 0) {
+                const url = req.url;
+                // Check if user has permission for this route
+                if (!hasPermission(decoded, url, true)) {
+                    return res.status(403).json({ success: false, error: "Forbidden" });
+                }
+            } else {
+                // Legacy role-based check
+                if (!allowedRoles.includes(decoded.role)) {
+                    return res.status(403).json({ success: false, error: "Forbidden" });
+                }
             }
 
-            req.user = decoded;
             return handler(req, res);
         } catch (error) {
             return res.status(401).json({ success: false, error: "Unauthorized" });

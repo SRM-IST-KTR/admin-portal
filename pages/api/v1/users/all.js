@@ -39,4 +39,4 @@ async function handler(req, res) {
 }
 
 // Protect this route for admin users only
-export default withAuth(handler, ["admin"]); 
+export default withAuth(handler); 
