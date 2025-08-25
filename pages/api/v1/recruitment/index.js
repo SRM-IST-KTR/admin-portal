@@ -1,12 +1,14 @@
-import Recruitment from "@/utils/models/recruitment.model";
-import DBInstance from "@/utils/db";
-DBInstance();
+import ParticipantUser from "@/utils/models/recruitment.model";
+import DB from "@/utils/db";
 
 export default async function handler(req, res) {
     if (req.method === "GET") {
         try {
-            // Retrieve all events from the database
-            const recruitment_data = await Recruitment.find();
+            // Connect to MongoDB using the default instance
+            await DB.DBRecruitment();
+
+            // Retrieve all recruitment data from the database
+            const recruitment_data = await ParticipantUser.find();
 
             // Send the response with the retrieved events
             res.status(200).json({ success: true, data: recruitment_data });
