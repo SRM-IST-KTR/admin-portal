@@ -3,11 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-<<<<<<< HEAD
 const { MONGO_URI, DB_NAME, MONGO_URI_RECRUITMENT, DB_NAME_RECRUITMENT } = process.env;
-=======
-const { MONGO_URI, DB_TEST_NAME } = process.env;
->>>>>>> staging
 
 const DBInstance = async () => {
   try {
