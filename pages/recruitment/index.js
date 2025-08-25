@@ -9,11 +9,9 @@ import FilterDropdown from "@/components/recruitments/FilterDropdown";
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const convertToCSV = (data) => {
-    const header = "Name,Email,RegNo,PhoneNo,Year,Dept,Domain,Subdomain,Status\n";
+    const header = "Name,Email,RegNo,PhoneNo,Year,Degree,Domain,Status\n";
     const rows = data.map((row) => {
-        const domain = Object.keys(row.domain).join(", ");
-        const subdomain = Object.values(row.domain).flat().join(", ");
-        return `${row.name},${row.email},${row.regNo},${row.phoneNo},${row.year},${row.dept},${domain},${subdomain},${row.status}`;
+        return `${row.name},${row.email},${row.registrationNumber},${row.phone},${row.year},${row.degreeWithBranch},${row.domain},${row.status}`;
     });
     return header + rows.join("\n");
 };
@@ -25,7 +23,6 @@ const Recruitment = () => {
     const [showTable, setShowTable] = useState(false);
     const [showMoreAnalytics, setShowMoreAnalytics] = useState(false);
     const [domains, setDomains] = useState({});
-    const [subDomains, setSubDomains] = useState({});
     const [firstYearCount, setFirstYearCount] = useState(0);
     const [secondYearCount, setSecondYearCount] = useState(0);
     const [yearDomainData, setYearDomainData] = useState({});
@@ -68,15 +65,9 @@ const Recruitment = () => {
 
     const processDomains = (data) => {
         const domainCount = {};
-        const subDomainCount = {
-            Technical: { firstYear: {}, secondYear: {} },
-            Creatives: { firstYear: {}, secondYear: {} },
-            Corporate: { firstYear: {}, secondYear: {} }
-        };
-
         const yearDomainData = {
             Technical: { firstYear: 0, secondYear: 0 },
-            Creatives: { firstYear: 0, secondYear: 0 },
+            Creative: { firstYear: 0, secondYear: 0 },
             Corporate: { firstYear: 0, secondYear: 0 }
         };
 
@@ -84,29 +75,28 @@ const Recruitment = () => {
         let secondYear = 0;
 
         data.forEach((item) => {
-            const yearKey = item.year === "1st" ? "firstYear" : "secondYear";
+            // Normalize year data
+            const year = item.year.toLowerCase().includes('1st') || item.year.toLowerCase().includes('1') ? '1st' : '2nd';
+            const yearKey = year === "1st" ? "firstYear" : "secondYear";
 
-            const domainKeys = Object.keys(item.domain);
-            domainKeys.forEach((domain) => {
-                domainCount[domain] = (domainCount[domain] || 0) + 1;
+            // Count domain occurrences
+            const domain = item.domain;
+            domainCount[domain] = (domainCount[domain] || 0) + 1;
 
+            // Count year-wise domain data
+            if (yearDomainData[domain]) {
                 yearDomainData[domain][yearKey] += 1;
+            }
 
-                item.domain[domain].forEach((subDomain) => {
-                    subDomainCount[domain][yearKey][subDomain] =
-                        (subDomainCount[domain][yearKey][subDomain] || 0) + 1;
-                });
-            });
-
-            if (item.year === "1st") firstYear++;
-            else if (item.year === "2nd") secondYear++;
+            // Count total years
+            if (year === "1st") firstYear++;
+            else if (year === "2nd") secondYear++;
         });
 
         setDomains(domainCount);
-        setSubDomains(subDomainCount);  // Now subDomains contains separate year counts
         setFirstYearCount(firstYear);
         setSecondYearCount(secondYear);
-        setYearDomainData(yearDomainData);  // Set year-wise domain data
+        setYearDomainData(yearDomainData);
     };
 
     const handleShowTable = () => {
@@ -119,13 +109,13 @@ const Recruitment = () => {
 
     // Define the yearWiseDomainChartData properly
     const yearWiseDomainChartData = {
-        labels: ["Technical", "Creatives", "Corporate"],
+        labels: ["Technical", "Creative", "Corporate"],
         datasets: [
             {
                 label: '1st Year',
                 data: [
                     yearDomainData.Technical?.firstYear || 0,
-                    yearDomainData.Creatives?.firstYear || 0,
+                    yearDomainData.Creative?.firstYear || 0,
                     yearDomainData.Corporate?.firstYear || 0
                 ],
                 backgroundColor: '#36A2EB'
@@ -134,7 +124,7 @@ const Recruitment = () => {
                 label: '2nd Year',
                 data: [
                     yearDomainData.Technical?.secondYear || 0,
-                    yearDomainData.Creatives?.secondYear || 0,
+                    yearDomainData.Creative?.secondYear || 0,
                     yearDomainData.Corporate?.secondYear || 0
                 ],
                 backgroundColor: '#F4CE14'
@@ -153,67 +143,6 @@ const Recruitment = () => {
         }],
     };
 
-    // Ensure subDomains.Technical and other subDomains exist
-    const technicalSubdomainByYearData = {
-        labels: subDomains.Technical ? Object.keys(subDomains.Technical.firstYear || {}) : [], // Ensure subDomains.Technical exists
-        datasets: [
-            {
-                label: '1st Year',
-                data: subDomains.Technical ? Object.keys(subDomains.Technical.firstYear || {}).map(subdomain => subDomains.Technical.firstYear[subdomain] || 0) : [],
-                backgroundColor: '#36BA98'
-            },
-            {
-                label: '2nd Year',
-                data: subDomains.Technical ? Object.keys(subDomains.Technical.secondYear || {}).map(subdomain => subDomains.Technical.secondYear[subdomain] || 0) : [],
-                backgroundColor: '#E76F51'
-            }
-        ]
-    };
-
-    const creativeSubdomainByYearData = {
-        labels: subDomains.Creatives ? Object.keys(subDomains.Creatives.firstYear || {}) : [], // Ensure subDomains.Creatives exists
-        datasets: [
-            {
-                label: '1st Year',
-                data: subDomains.Creatives ? Object.keys(subDomains.Creatives.firstYear || {}).map(subdomain => subDomains.Creatives.firstYear[subdomain] || 0) : [],
-                backgroundColor: '#59D5E0'
-            },
-            {
-                label: '2nd Year',
-                data: subDomains.Creatives ? Object.keys(subDomains.Creatives.secondYear || {}).map(subdomain => subDomains.Creatives.secondYear[subdomain] || 0) : [],
-                backgroundColor: '#FFA447'
-            }
-        ]
-    };
-
-    // Subdomain Distribution by domain only (not by year)
-    const technicalSubDomainData = {
-        labels: subDomains.Technical ? Object.keys(subDomains.Technical.firstYear || {}) : [],
-        datasets: [{
-            label: 'Technical Subdomain Distribution',
-            data: subDomains.Technical ? Object.keys(subDomains.Technical.firstYear || {}).map(subdomain => (subDomains.Technical.firstYear[subdomain] || 0) + (subDomains.Technical.secondYear[subdomain] || 0)) : [],
-            backgroundColor: '#36A2EB',
-        }],
-    };
-
-    const creativeSubDomainData = {
-        labels: subDomains.Creatives ? Object.keys(subDomains.Creatives.firstYear || {}) : [],
-        datasets: [{
-            label: 'Creative Subdomain Distribution',
-            data: subDomains.Creatives ? Object.keys(subDomains.Creatives.firstYear || {}).map(subdomain => (subDomains.Creatives.firstYear[subdomain] || 0) + (subDomains.Creatives.secondYear[subdomain] || 0)) : [],
-            backgroundColor: '#FFCE56',
-        }],
-    };
-
-    const corporateSubDomainData = {
-        labels: subDomains.Corporate ? Object.keys(subDomains.Corporate.firstYear || {}) : [],
-        datasets: [{
-            label: 'Corporate Subdomain Distribution',
-            data: subDomains.Corporate ? Object.keys(subDomains.Corporate.firstYear || {}).map(subdomain => (subDomains.Corporate.firstYear[subdomain] || 0) + (subDomains.Corporate.secondYear[subdomain] || 0)) : [],
-            backgroundColor: '#FF6384',
-        }],
-    };
-
     const getStatusStyle = (status) => {
         if (status === "taskSubmitted") return { color: "#FF9800" }; // Orange text
         if (status === "interviewShortlisted") return { backgroundColor: "#FFEB3B", fontWeight: "bold" }; // Yellow background, bold text
@@ -224,12 +153,12 @@ const Recruitment = () => {
     const applyFilters = () => {
         let filteredData = recruitmentData;
 
-        // Apply domain filters (Technical, Creatives, Corporate)
-        if (activeFilters.Technical || activeFilters.Creatives || activeFilters.Corporate) {
+        // Apply domain filters (Technical, Creative, Corporate)
+        if (activeFilters.Technical || activeFilters.Creative || activeFilters.Corporate) {
             filteredData = filteredData.filter((record) => {
-                if (activeFilters.Technical && record.domain['Technical']) return true;
-                if (activeFilters.Creatives && record.domain['Creatives']) return true;
-                if (activeFilters.Corporate && record.domain['Corporate']) return true;
+                if (activeFilters.Technical && record.domain === 'Technical') return true;
+                if (activeFilters.Creative && record.domain === 'Creative') return true;
+                if (activeFilters.Corporate && record.domain === 'Corporate') return true;
                 return false;
             });
         }
@@ -275,20 +204,7 @@ const Recruitment = () => {
                 <Pie data={domainChartData} options={{ responsive: true, maintainAspectRatio: true }} />
             </div>
 
-            <h2 className="text-xl mb-2 mt-16">Subdomain Distribution</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-                <div className="shadow-lg p-4">
-                    <Bar data={technicalSubDomainData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />
-                </div>
-                <div className="shadow-lg p-4">
-                    <Bar data={creativeSubDomainData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />
-                </div>
-                <div className="shadow-lg p-4">
-                    <Bar data={corporateSubDomainData} options={{ responsive: true, maintainAspectRatio: false }} height={200} />
-                </div>
-            </div>
-
-            <div className="flex justify-center gap-8 mb-5">
+            <div className="flex justify-center gap-8 mb-5 mt-8">
                 <button
                     onClick={handleShowMoreAnalytics}
                     className="bg-green-500 text-white px-4 py-2 rounded"
@@ -304,50 +220,22 @@ const Recruitment = () => {
                 </button>
             </div>
             {showMoreAnalytics && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mb-5">
                     <div className="shadow-lg p-4">
-                        <Bar
-                            data={yearWiseDomainChartData}
-                            options={{
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    x: { stacked: true },
-                                    y: { stacked: true, beginAtZero: true }
-                                }
-                            }}
-                            height={200}
-                        />
-                    </div>
-
-                    <div className="shadow-lg p-4">
-                        <Bar
-                            data={technicalSubdomainByYearData}
-                            options={{
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    x: { stacked: true },
-                                    y: { stacked: true, beginAtZero: true }
-                                }
-                            }}
-                            height={200}
-                        />
-                    </div>
-
-                    <div className="shadow-lg p-4">
-                        <Bar
-                            data={creativeSubdomainByYearData}
-                            options={{
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    x: { stacked: true },
-                                    y: { stacked: true, beginAtZero: true }
-                                }
-                            }}
-                            height={200}
-                        />
+                        <h3 className="text-lg font-semibold mb-2 text-center">Year-wise Domain Distribution</h3>
+                        <div style={{ height: '600px', width: '100%' }}>
+                            <Bar
+                                data={yearWiseDomainChartData}
+                                options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        x: { stacked: false },
+                                        y: { stacked: false, beginAtZero: true }
+                                    }
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
             )}
@@ -368,10 +256,11 @@ const Recruitment = () => {
                             <tr className="bg-gray-100 dark:text-black">
                                 <th className="border border-gray-300 px-4 py-2">Name</th>
                                 <th className="border border-gray-300 px-4 py-2">Email</th>
-                                <th className="border border-gray-300 px-4 py-2">Department</th>
+                                <th className="border border-gray-300 px-4 py-2">Registration Number</th>
+                                <th className="border border-gray-300 px-4 py-2">Phone</th>
                                 <th className="border border-gray-300 px-4 py-2">Year</th>
+                                <th className="border border-gray-300 px-4 py-2">Degree & Branch</th>
                                 <th className="border border-gray-300 px-4 py-2">Domain</th>
-                                <th className="border border-gray-300 px-4 py-2">Subdomain</th>
                                 <th className="border border-gray-300 px-4 py-2">Status</th>
                             </tr>
                         </thead>
@@ -380,10 +269,11 @@ const Recruitment = () => {
                                 <tr key={record._id}>
                                     <td className="border border-gray-300 px-4 py-2">{record.name}</td>
                                     <td className="border border-gray-300 px-4 py-2">{record.email}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{record.dept}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.registrationNumber}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.phone}</td>
                                     <td className="border border-gray-300 px-4 py-2">{record.year}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{Object.keys(record.domain).join(", ")}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{Object.values(record.domain).flat().join(", ")}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.degreeWithBranch}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{record.domain}</td>
                                     <td className="border border-gray-300 px-4 py-2" style={getStatusStyle(record.status)}>{record.status}</td>
                                 </tr>
                             ))}

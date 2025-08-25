@@ -1,6 +1,7 @@
 import Event from "@/utils/models/event.models";
-import DBInstance from "@/utils/db";
-DBInstance();
+// import DBInstance from "@/utils/db";
+import DB from "@/utils/db"
+DB.DBInstance();
 
 export default async function handler(req, res) {
   const { slug } = req.query;

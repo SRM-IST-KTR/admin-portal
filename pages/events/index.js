@@ -6,15 +6,16 @@ import withAuth from "@/components/withAuth";
 import { PlusCircle } from "lucide-react";
 import AddEvent from "@/components/events/AddEvent";
 import EventSkeleton from "@/components/events/EventSkeleton";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Events = () => {
   const [activeEvents, setActiveEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isClosing, setIsClosing] = useState(false);
   const router = useRouter();
+  const { user, isAdmin } = useAuth();
 
   const fetchEvents = async () => {
     try {
@@ -38,13 +39,14 @@ const Events = () => {
   };
 
   useEffect(() => {
-    // Check if user is admin
-    const user = localStorage.getItem("user");
-    const adminUsername = process.env.NEXT_PUBLIC_ADMIN_USERNAME;
-    setIsAdmin(user === adminUsername);
-
     fetchEvents();
   }, []);
+
+  // Function to check if user can add events (admin or manager)
+  const canAddEvents = () => {
+    if (!user) return false;
+    return isAdmin || user.role === "manager";
+  };
 
   // Function to toggle modal visibility
   const handleAddEvent = () => {
@@ -124,8 +126,8 @@ const Events = () => {
         )}
       </div>
 
-      {/* Floating Action Button - Only visible to admin */}
-      {isAdmin && (
+      {/* Floating Action Button - Visible to admins and managers */}
+      {canAddEvents() && (
         <button
           onClick={handleAddEvent}
           className="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-all duration-300 hover:scale-110 flex items-center gap-2"

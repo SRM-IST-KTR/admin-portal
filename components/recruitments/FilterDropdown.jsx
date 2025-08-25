@@ -4,7 +4,7 @@ const FilterDropdown = ({ onFilterChange }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [filters, setFilters] = useState({
         Technical: false,
-        Creatives: false,
+        Creative: false,
         Corporate: false,
         taskSubmitted: false,
         interviewShortlisted: false,

@@ -1,8 +1,8 @@
-import dbInstance from "@/utils/db";
+import DB from "@/utils/db";
 import Event from "@/utils/models/event.models";
 import mongoose from "mongoose";
 
-dbInstance();
+DB.DBInstance();
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
