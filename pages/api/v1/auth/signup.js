@@ -1,4 +1,5 @@
 import DBInstance from "@/utils/db";
+import DB from "@/utils/db"
 import User from "@/utils/models/user.model";
 
 export default async function handler(req, res) {
@@ -7,7 +8,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        await DBInstance();
+        await DB.DBInstance();
 
         const { name, email, password, position, domain } = req.body;
 

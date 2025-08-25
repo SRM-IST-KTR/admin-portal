@@ -1,4 +1,5 @@
 import DBInstance from "@/utils/db";
+import DB from "@/utils/db";
 import Team from "@/utils/models/team.model";
 import User from "@/utils/models/user.model";
 
@@ -8,7 +9,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        await DBInstance();
+        await DB.DBInstance();
 
         // Get the name from query parameters
         const { name } = req.query;

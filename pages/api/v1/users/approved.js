@@ -1,36 +1,34 @@
-import DBInstance from "@/utils/db";
-import { withAuth } from "@/utils/auth";
+import dbInstance from "@/utils/db";
+import User from "@/utils/models/user.model";
+import { getSession } from "@/utils/auth";
 
-async function handler(req, res) {
-    if (req.method !== "GET") {
-        return res.status(405).json({ success: false, error: "Method not allowed" });
-    }
+dbInstance();
 
-    try {
-        const { db } = await DBInstance();
+export default async function handler(req, res) {
+  const { method } = req;
+  const session = await getSession(req, res);
 
-        // Fetch approved users
-        const users = await db
-            .collection("users")
-            .find({ isApproved: true })
-            .project({ password: 0 }) // Exclude password field
-            .sort({ approvalDate: -1 }) // Sort by approval date, newest first
-            .toArray();
+  if (!session) {
+    return res.status(401).json({ success: false, error: "Unauthorized" });
+  }
 
-        return res.status(200).json({
-            success: true,
-            data: {
-                users,
-            },
-        });
-    } catch (error) {
-        console.error("Error fetching approved users:", error);
-        return res.status(500).json({
-            success: false,
-            error: "Failed to fetch approved users",
-        });
-    }
+  if (method !== "GET") {
+    res.setHeader("Allow", ["GET"]);
+    return res.status(405).json({ success: false, error: `Method ${method} Not Allowed` });
+  }
+
+  try {
+    // Fetch all approved users
+    const users = await User.find({ status: "approved" })
+      .select("name email position domain role")
+      .sort({ name: 1 });
+
+    return res.status(200).json({
+      success: true,
+      data: users
+    });
+  } catch (error) {
+    console.error("Error fetching approved users:", error);
+    return res.status(500).json({ success: false, error: "Failed to fetch users" });
+  }
 }
-
-// Protect this route for admin users only
-export default withAuth(handler, ["admin"]); 

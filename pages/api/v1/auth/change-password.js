@@ -1,4 +1,5 @@
-import DBInstance from "../../../../utils/db";
+// import DBInstance from "../../../../utils/db";
+import DB from "../../../../utils/db";
 import User from "../../../../utils/models/user.model";
 
 export default async function handler(req, res) {
@@ -30,7 +31,7 @@ export default async function handler(req, res) {
         await user.save();
 
         // Create a login log for the password change
-        await DBInstance.collection("loginLogs").insertOne({
+        await DB.DBInstance.collection("loginLogs").insertOne({
             userId: user._id,
             email: user.email,
             status: "success",

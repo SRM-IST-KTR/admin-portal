@@ -1,4 +1,5 @@
 import DBInstance from "@/utils/db";
+import DB from "@/utils/db"
 import LoginLog from "@/utils/models/loginLog.model";
 import { withAuth } from "@/utils/auth";
 
@@ -8,7 +9,7 @@ async function handler(req, res) {
     }
 
     try {
-        await DBInstance();
+        await DB.DBInstance();
 
         // Extract query parameters for filtering and pagination
         const { page = 1, limit = 10, status, role, startDate, endDate } = req.query;

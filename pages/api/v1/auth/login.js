@@ -1,4 +1,5 @@
 import DBInstance from "@/utils/db";
+import DB from "@/utils/db"
 import User from "@/utils/models/user.model";
 import LoginLog from "@/utils/models/loginLog.model";
 import { generateToken } from "@/utils/auth";
@@ -9,7 +10,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        await DBInstance();
+        await DB.DBInstance();
 
         const { email, password } = req.body;
 

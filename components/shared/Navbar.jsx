@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
-import { Calendar, Users, LogOut, Menu, X, UserCircle, UserPlus, ChevronDown, Home } from "lucide-react";
+import { Calendar, Users, LogOut, Menu, X, UserCircle, UserPlus, ChevronDown, Home, CheckSquare } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Navbar = () => {
@@ -46,6 +46,16 @@ const Navbar = () => {
                 >
                   <Calendar className="w-5 h-5" />
                   <span>Events</span>
+                </Link>
+                <Link
+                  href="/tasks"
+                  className={`flex items-center gap-2 transition-colors ${isActive("/tasks")
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-blue-600"
+                    }`}
+                >
+                  <CheckSquare className="w-5 h-5" />
+                  <span>Tasks</span>
                 </Link>
                 <Link
                   href="/recruitment"
@@ -156,6 +166,17 @@ const Navbar = () => {
                   >
                     <Calendar className="w-5 h-5" />
                     <span>Events</span>
+                  </Link>
+                  <Link
+                    href="/tasks"
+                    className={`flex items-center gap-2 transition-colors ${isActive("/tasks")
+                      ? "text-blue-600"
+                      : "text-gray-600 hover:text-blue-600"
+                      }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <CheckSquare className="w-5 h-5" />
+                    <span>Tasks</span>
                   </Link>
                   <Link
                     href="/recruitment"

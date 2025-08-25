@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { LogIn, Calendar, Users, LogOut, UserCog, AlertCircle, CheckCircle, XCircle, Clock, Filter, UserPlus, Lock } from "lucide-react";
+import { LogIn, Calendar, Users, LogOut, UserCog, AlertCircle, CheckCircle, XCircle, Clock, Filter, UserPlus, Lock, ClipboardList } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -232,6 +232,21 @@ export default function Home() {
                     <div className="text-left">
                       <h3 className="font-semibold text-lg mb-1 text-gray-900">Events</h3>
                       <p className="text-gray-500 text-sm">Manage and track event participants</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => router.push("/tasks")}
+                  className="group bg-gray-50 hover:bg-gray-100 p-6 rounded-xl border border-gray-200 transition-all transform hover:scale-[1.02]"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors">
+                      <ClipboardList className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-semibold text-lg mb-1 text-gray-900">Tasks</h3>
+                      <p className="text-gray-500 text-sm">Manage and track project tasks</p>
                     </div>
                   </div>
                 </button>
