@@ -1,61 +1,67 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 
 const participantSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
     },
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
-    regNo: {
+    registrationNumber: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
-    phoneNo: {
-        type: Number,
-        required: true
+    phone: {
+        type: String,
+        required: true,
     },
     year: {
         type: String,
-        required: true
-    },
-    dept: {
-        type: String,
-        required: true
+        required: true,
     },
     domain: {
-        type: Map,
-        of: {
-            type: [String],
-            maxlength: 2
-        },
-        required: true
+        type: String,
+        required: true,
+    },
+    degreeWithBranch: {
+        type: String,
+        required: true,
     },
     links: {
         github: {
             type: String,
-            default: null
+            default: null,
         },
         demo: {
             type: String,
-            default: null
+            default: null,
         },
         deployment: {
             type: String,
-            default: null
-        }
+            default: null,
+        },
     },
     status: {
         type: String,
-        enum: ["registered", "taskShortlisted", "interviewShortlisted"],
-        default: "registered"
-    }
+        enum: [
+            'registered',
+            'taskSubmitted',
+            'interviewShortlisted',
+            'onboarding',
+        ],
+        default: 'registered',
+    },
 });
 
-const ParticipantUser = mongoose.model.Recruitment24 || mongoose.model("Recruitment24", participantSchema);
+// const ParticipantUser = mongoose.model(
+// 	'ParticipantUser',
+// 	participantSchema,
+// 	'recruitment25'
+// );
+const ParticipantUser = mongoose.models.recruitment25 || mongoose.model("recruitment25", participantSchema);
 
-module.exports = ParticipantUser;
+export default ParticipantUser;
