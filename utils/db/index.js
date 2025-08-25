@@ -10,7 +10,7 @@ const DBInstance = async () => {
     await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      dbName: DB_TEST_NAME,
+      dbName: DB_NAME,
     });
 
     // console.log(`✅ Connected to MongoDB: ${NEXT_PUBLIC_DB_NAME}`);

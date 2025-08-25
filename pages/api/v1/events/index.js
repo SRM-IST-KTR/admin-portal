@@ -1,12 +1,11 @@
 import Event from "@/utils/models/event.models";
 import DB from "@/utils/db";
-DB.DBInstance();
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
       // Connect to MongoDB
-      await DBInstance();
+      await DB.DBInstance();
 
       // Retrieve all events from the database
       const events = await Event.find();

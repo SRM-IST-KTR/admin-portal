@@ -1,9 +1,9 @@
-import DBInstance from "@/utils/db";
+import DB from "@/utils/db";
 import Team from "@/utils/models/team.model";
 
 export default async function handler(req, res) {
     try {
-        await DBInstance();
+        await DB.DBInstance();
     } catch (error) {
         console.error("Database connection error:", error);
         return res.status(500).json({ success: false, error: "Database connection failed" });
