@@ -9,6 +9,7 @@ import SearchBar from "@/components/events/SearchBar";
 import SendRsvpModal from "@/components/events/SendRsvpModal";
 import FilterDropdown from "@/components/events/FilterDropdown";
 import QRScannerModal from "@/components/events/QRScannerModal";
+import { Download, Mail, QrCode, Users } from "lucide-react";
 
 const convertToCSV = (data) => {
   const header = Object.keys(data[0]).join(",") + "\n";
@@ -88,21 +89,43 @@ const EventDetails = () => {
       await axios.put(
         `/api/v1/events/participants/${selectedParticipant.email}`,
         {
+          eventSlug: slug,
           name: selectedParticipant.name,
           email: selectedParticipant.email,
           regNo: selectedParticipant.regNo,
           dept: selectedParticipant.dept,
+          phn: selectedParticipant.phn,
           rsvp: selectedParticipant.rsvp,
           checkin: selectedParticipant.checkin,
           snacks: selectedParticipant.snacks,
         }
       );
+
       const response = await axios.get(`/api/v1/events/participants/${slug}`);
       setParticipants(response.data.data);
       setFilteredParticipants(response.data.data);
       handleModalClose();
     } catch (error) {
       console.error("Error updating participant data:", error);
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+        setSelectedParticipant(prev => ({
+          ...prev,
+          error: error.response.data.error || "Failed to update participant"
+        }));
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        setSelectedParticipant(prev => ({
+          ...prev,
+          error: "No response from server. Please try again."
+        }));
+      } else {
+        console.error("Error setting up request:", error.message);
+        setSelectedParticipant(prev => ({
+          ...prev,
+          error: "Failed to update participant. Please try again."
+        }));
+      }
     }
   };
 
@@ -170,57 +193,106 @@ const EventDetails = () => {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   if (!event) {
-    return <p>Event not found</p>;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">Event Not Found</h1>
+          <p className="text-gray-600">The event you're looking for doesn't exist.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 text-black">
-      <EventInfo event={event} />
-      <div className="flex max-md:flex-col justify-between">
-        <button
-          className="bg-green-500 text-white px-4 py-2 rounded-lg mb-4"
-          onClick={() => setShowSendRsvpModal(true)}
-        >
-          SEND RSVP MAILS
-        </button>
-        {showSendRsvpModal && (
-          <SendRsvpModal
-            participants={filteredParticipants}
-            onClose={() => setShowSendRsvpModal(false)}
-            onSend={handleSendRsvpEmails}
-          />
-        )}
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4"
-          onClick={handleOpenQRScanner}
-        >
-          OPEN QR SCANNER
-        </button>
-        <button
-          className="bg-gray-500 text-white px-4 py-2 rounded-lg mb-4"
-          onClick={handleDownloadCSV}
-        >
-          DOWNLOAD CSV
-        </button>
+    <div className="min-h-screen text-black">
+      <div className="container mx-auto px-4 py-8">
+        {/* Event Info Section */}
+        <div className=" rounded-xl shadow-sm p-6 mb-8 text-black">
+          <EventInfo event={event} />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <button
+            onClick={() => setShowSendRsvpModal(true)}
+            className="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+          >
+            <Mail size={20} />
+            <span>Send RSVP Mails</span>
+          </button>
+          <button
+            onClick={handleOpenQRScanner}
+            className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <QrCode size={20} />
+            <span>Open QR Scanner</span>
+          </button>
+          <button
+            onClick={handleDownloadCSV}
+            className="flex items-center justify-center gap-2 bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors shadow-sm"
+          >
+            <Download size={20} />
+            <span>Download CSV</span>
+          </button>
+          <div className="flex items-center justify-center gap-2 bg-purple-600 text-white px-4 py-3 rounded-lg shadow-sm">
+            <Users size={20} />
+            <span>{filteredParticipants.length} Participants</span>
+          </div>
+        </div>
+
+        {/* Participants Section */}
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Participants</h2>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <FilterDropdown onFilterChange={handleFilterChange} />
+              <SearchBar onSearch={handleSearch} onScan={handleQrScan} />
+            </div>
+          </div>
+
+          {/* Event Details Summary */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-600">Venue</p>
+              <p className="font-medium text-gray-900">{event.venue}</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-600">RSVP Limit</p>
+              <p className="font-medium text-gray-900">{event.rsvpLimit}</p>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-600">Current Participants</p>
+              <p className="font-medium text-gray-900">{filteredParticipants.length}</p>
+            </div>
+          </div>
+
+          {/* Participants List */}
+          <div className="overflow-x-auto">
+            <ParticipantList
+              participants={filteredParticipants}
+              onClickParticipant={handleParticipantClick}
+            />
+          </div>
+        </div>
       </div>
 
+      {/* Modals */}
+      {showSendRsvpModal && (
+        <SendRsvpModal
+          participants={filteredParticipants}
+          onClose={() => setShowSendRsvpModal(false)}
+          onSend={handleSendRsvpEmails}
+        />
+      )}
       {showQRScanner && <QRScannerModal onClose={handleCloseQRScanner} />}
-      <h2 className="text-2xl font-bold mb-4 text-white">Participants</h2>
-      <FilterDropdown onFilterChange={handleFilterChange} />
-      <p className="mb-4 text-white">
-        Total Participants: {filteredParticipants.length}
-      </p>
-      <p className="mb-4 text-white"> Venue: {event.venue}</p>
-      <p className="mb-4 text-white"> RSVP Limit: {event.rsvpLimit}</p>
-      <SearchBar onSearch={handleSearch} onScan={handleQrScan} />
-      <ParticipantList
-        participants={filteredParticipants}
-        onClickParticipant={handleParticipantClick}
-      />
       {selectedParticipant && (
         <ParticipantModal
           participant={selectedParticipant}
