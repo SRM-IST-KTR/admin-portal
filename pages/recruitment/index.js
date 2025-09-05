@@ -67,7 +67,7 @@ const Recruitment = () => {
         const domainCount = {};
         const yearDomainData = {
             Technical: { firstYear: 0, secondYear: 0 },
-            Creative: { firstYear: 0, secondYear: 0 },
+            Creatives: { firstYear: 0, secondYear: 0 },
             Corporate: { firstYear: 0, secondYear: 0 }
         };
 
@@ -109,13 +109,13 @@ const Recruitment = () => {
 
     // Define the yearWiseDomainChartData properly
     const yearWiseDomainChartData = {
-        labels: ["Technical", "Creative", "Corporate"],
+        labels: ["Technical", "Creatives", "Corporate"],
         datasets: [
             {
                 label: '1st Year',
                 data: [
                     yearDomainData.Technical?.firstYear || 0,
-                    yearDomainData.Creative?.firstYear || 0,
+                    yearDomainData.Creatives?.firstYear || 0,
                     yearDomainData.Corporate?.firstYear || 0
                 ],
                 backgroundColor: '#36A2EB'
@@ -124,7 +124,7 @@ const Recruitment = () => {
                 label: '2nd Year',
                 data: [
                     yearDomainData.Technical?.secondYear || 0,
-                    yearDomainData.Creative?.secondYear || 0,
+                    yearDomainData.Creatives?.secondYear || 0,
                     yearDomainData.Corporate?.secondYear || 0
                 ],
                 backgroundColor: '#F4CE14'
@@ -153,11 +153,11 @@ const Recruitment = () => {
     const applyFilters = () => {
         let filteredData = recruitmentData;
 
-        // Apply domain filters (Technical, Creative, Corporate)
-        if (activeFilters.Technical || activeFilters.Creative || activeFilters.Corporate) {
+        // Apply domain filters (Technical, Creatives, Corporate)
+        if (activeFilters.Technical || activeFilters.Creatives || activeFilters.Corporate) {
             filteredData = filteredData.filter((record) => {
                 if (activeFilters.Technical && record.domain === 'Technical') return true;
-                if (activeFilters.Creative && record.domain === 'Creative') return true;
+                if (activeFilters.Creatives && record.domain === 'Creatives') return true;
                 if (activeFilters.Corporate && record.domain === 'Corporate') return true;
                 return false;
             });
