@@ -1,43 +1,23 @@
-import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import axios from "axios";
-import withAuth from "@/components/withAuth";
-import { Plus, Edit2, Trash2, X, Save, Loader2, AlertCircle } from "lucide-react";
-
-const POSITIONS = ['President', 'Vice President', 'Director', 'Member', 'Lead', 'Associate', 'Admin', 'Alumni'];
-const DOMAINS = ['President', 'Vice President', 'Technical', 'Corporate', 'Creatives'];
-
-const getInitials = (name) => {
-    return name
-        .split(' ')
-        .map(word => word[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-};
+import { useEffect, useState } from "react";
+import { Plus, AlertCircle, X } from "lucide-react";
+import TeamCard from "../../components/teams/TeamCard";
+import AddMemberModal from "../../components/teams/AddMemberModal";
+import DeleteConfirmModal from "../../components/teams/DeleteConfirmModal";
+import FilterBar from "../../components/teams/FilterBar";
+import Toast from "../../components/shared/Toast";
+import { API_ENDPOINTS } from "../../utils/config";
 
 export default function Teams() {
     const router = useRouter();
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [editingMember, setEditingMember] = useState(null);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [newMember, setNewMember] = useState({
-        name: "",
-        domain: "",
-        position: "",
-        caption: "",
-        joined: new Date().getFullYear(),
-        pictureUrl: "",
-        isCurrent: true,
-        socials: {
-            github: "",
-            linkedin: "",
-            instagram: "",
-            website: "",
-        },
-    });
+    const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, member: null });
+    const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+    const [activeTab, setActiveTab] = useState('current'); // 'current' or 'alumni'
+    const [filters, setFilters] = useState({ domain: '', position: '' });
 
     useEffect(() => {
         // Check if user is admin
@@ -52,293 +32,153 @@ export default function Teams() {
 
     const fetchTeams = async () => {
         try {
-            const response = await axios.get("/api/v1/teams");
-            // Sort teams by name in ascending order
-            const sortedTeams = response.data.data.sort((a, b) =>
+            const response = await fetch(API_ENDPOINTS.TEAM.GET_ALL);
+            if (!response.ok) throw new Error("Failed to fetch teams");
+            const result = await response.json();
+            // Sort alphabetically by name
+            const sortedTeams = (result.data || []).sort((a, b) =>
                 a.name.localeCompare(b.name)
             );
             setTeams(sortedTeams);
             setLoading(false);
         } catch (err) {
-            setError("Failed to fetch team members");
+            setError(err.message);
             setLoading(false);
         }
     };
 
-    const handleEdit = (member) => {
-        setEditingMember(member);
-    };
-
-    const handleSave = async (member) => {
+    const handleUpdate = async (member) => {
         try {
-            // Validate required fields
-            if (!member.name || !member.domain || !member.position) {
-                setError("Name, domain, and position are required fields");
-                return;
+            const response = await fetch(API_ENDPOINTS.TEAM.UPDATE(member._id), {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: member.name,
+                    domain: member.domain,
+                    position: member.position,
+                    caption: member.caption,
+                    joined: member.joined,
+                    pictureUrl: member.pictureUrl,
+                    isCurrent: member.isCurrent,
+                    socials: member.socials,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to update team member");
             }
 
-            const response = await axios.put(`/api/v1/teams/${member._id}`, member);
-            if (response.data.success) {
-                setEditingMember(null);
-                setError("");
-                fetchTeams();
-            } else {
-                setError(response.data.error || "Failed to update team member");
-            }
+            const result = await response.json();
+            // API returns { success: true, data: {...} }
+            const updatedMember = result.data || result;
+            const updatedTeams = teams.map((t) => (t._id === member._id ? updatedMember : t))
+                .sort((a, b) => a.name.localeCompare(b.name));
+            setTeams(updatedTeams);
+            setToast({ show: true, message: 'Team member updated successfully!', type: 'success' });
         } catch (err) {
-            console.error("Update error:", err);
-            const errorMessage = err.response?.data?.error || "Failed to update team member";
-            setError(errorMessage);
-
-            // If the error is due to invalid data, keep the editing state
-            if (err.response?.status === 400) {
-                return;
-            }
-
-            // For other errors, clear the editing state
-            setEditingMember(null);
+            setError(err.message);
+            setToast({ show: true, message: err.message, type: 'error' });
+            throw err;
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this team member?")) {
-            try {
-                await axios.delete(`/api/v1/teams/${id}`);
-                fetchTeams();
-            } catch (err) {
-                setError("Failed to delete team member");
-            }
-        }
+    const handleDelete = (memberId) => {
+        const member = teams.find(t => t._id === memberId);
+        setDeleteConfirm({ isOpen: true, member });
     };
 
-    const handleAdd = async () => {
+    const confirmDelete = async () => {
+        if (!deleteConfirm.member) return;
+
         try {
-            // Validate required fields
-            if (!newMember.name || !newMember.domain || !newMember.position) {
-                setError("Name, domain, and position are required fields");
-                return;
+            const response = await fetch(API_ENDPOINTS.TEAM.DELETE(deleteConfirm.member._id), {
+                method: "DELETE",
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to delete team member");
             }
 
-            const response = await axios.post("/api/v1/teams", newMember);
-            if (response.data.success) {
-                setShowAddModal(false);
-                setNewMember({
-                    name: "",
-                    domain: "",
-                    position: "",
-                    caption: "",
-                    joined: new Date().getFullYear(),
-                    pictureUrl: "",
-                    isCurrent: true,
-                    socials: {
-                        github: "",
-                        linkedin: "",
-                        instagram: "",
-                        website: "",
-                    },
-                });
-                setError("");
-                fetchTeams();
-            } else {
-                setError(response.data.error || "Failed to add team member");
-            }
+            setTeams(teams.filter((t) => t._id !== deleteConfirm.member._id));
+            setDeleteConfirm({ isOpen: false, member: null });
+            setToast({ show: true, message: 'Team member deleted successfully!', type: 'success' });
         } catch (err) {
-            console.error("Add error:", err);
-            const errorMessage = err.response?.data?.error || "Failed to add team member";
-            setError(errorMessage);
+            setError(err.message);
+            setToast({ show: true, message: err.message, type: 'error' });
+            setDeleteConfirm({ isOpen: false, member: null });
         }
     };
 
-    const renderProfileImage = (member) => {
-        if (editingMember?._id === member._id) {
-            return (
-                <input
-                    type="text"
-                    value={editingMember.pictureUrl}
-                    onChange={(e) =>
-                        setEditingMember({ ...editingMember, pictureUrl: e.target.value })
-                    }
-                    className="w-full h-full text-sm border rounded px-2 py-1"
-                    placeholder="Image URL"
-                />
+    const handleAdd = async (newMember) => {
+        try {
+            const response = await fetch(API_ENDPOINTS.TEAM.CREATE, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(newMember),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to add team member");
+            }
+
+            const result = await response.json();
+            // API returns { success: true, data: {...} }
+            const newTeamMember = result.data || result;
+            const updatedTeams = [...teams, newTeamMember].sort((a, b) =>
+                a.name.localeCompare(b.name)
             );
+            setTeams(updatedTeams);
+            setShowAddModal(false);
+            setToast({ show: true, message: 'Team member added successfully!', type: 'success' });
+        } catch (err) {
+            setError(err.message);
+            setToast({ show: true, message: err.message, type: 'error' });
+            throw err;
         }
-
-        if (member.pictureUrl) {
-            return (
-                <img
-                    src={member.pictureUrl}
-                    alt={member.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                    }}
-                />
-            );
-        }
-
-        return (
-            <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600 font-semibold text-lg">
-                {getInitials(member.name)}
-            </div>
-        );
-    };
-
-    const renderEditForm = (member) => {
-        if (editingMember?._id !== member._id) return null;
-
-        return (
-            <div className="mt-6 space-y-4 border-t pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Position
-                        </label>
-                        <select
-                            value={editingMember.position}
-                            onChange={(e) =>
-                                setEditingMember({ ...editingMember, position: e.target.value })
-                            }
-                            className="w-full border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            {POSITIONS.map((position) => (
-                                <option key={position} value={position}>
-                                    {position}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Domain
-                        </label>
-                        <select
-                            value={editingMember.domain}
-                            onChange={(e) =>
-                                setEditingMember({ ...editingMember, domain: e.target.value })
-                            }
-                            className="w-full border rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        >
-                            {DOMAINS.map((domain) => (
-                                <option key={domain} value={domain}>
-                                    {domain}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Joined Year
-                        </label>
-                        <input
-                            type="number"
-                            value={editingMember.joined}
-                            onChange={(e) =>
-                                setEditingMember({ ...editingMember, joined: parseInt(e.target.value) })
-                            }
-                            className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            min="2000"
-                            max={new Date().getFullYear()}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Caption
-                        </label>
-                        <input
-                            type="text"
-                            value={editingMember.caption}
-                            onChange={(e) =>
-                                setEditingMember({ ...editingMember, caption: e.target.value })
-                            }
-                            className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Enter a short caption"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Social Links
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <input
-                                type="text"
-                                placeholder="GitHub URL"
-                                value={editingMember.socials.github}
-                                onChange={(e) =>
-                                    setEditingMember({
-                                        ...editingMember,
-                                        socials: { ...editingMember.socials, github: e.target.value },
-                                    })
-                                }
-                                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                            <input
-                                type="text"
-                                placeholder="LinkedIn URL"
-                                value={editingMember.socials.linkedin}
-                                onChange={(e) =>
-                                    setEditingMember({
-                                        ...editingMember,
-                                        socials: { ...editingMember.socials, linkedin: e.target.value },
-                                    })
-                                }
-                                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <input
-                                type="text"
-                                placeholder="Instagram URL"
-                                value={editingMember.socials.instagram}
-                                onChange={(e) =>
-                                    setEditingMember({
-                                        ...editingMember,
-                                        socials: { ...editingMember.socials, instagram: e.target.value },
-                                    })
-                                }
-                                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex justify-end gap-3 pt-4">
-                    <button
-                        onClick={() => setEditingMember(null)}
-                        className="px-4 py-2 text-gray-700 hover:text-gray-900 border rounded-lg hover:bg-gray-50"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={() => handleSave(editingMember)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-                    >
-                        <Save className="w-4 h-4" />
-                        Save Changes
-                    </button>
-                </div>
-            </div>
-        );
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 py-8">
-                <div className="container mx-auto px-4">
-                    <div className="flex justify-center items-center h-64">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                    </div>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600">Loading team members...</p>
                 </div>
             </div>
         );
     }
+
+    // Filter teams based on active tab
+    const currentMembers = teams.filter(member => member.isCurrent === true);
+    const alumniMembers = teams.filter(member => member.isCurrent === false);
+
+    // Apply filters to the selected tab's members
+    const applyFilters = (members) => {
+        return members.filter(member => {
+            const matchesDomain = !filters.domain || member.domain === filters.domain;
+            const matchesPosition = !filters.position || member.position === filters.position;
+            return matchesDomain && matchesPosition;
+        });
+    };
+
+    const filteredCurrentMembers = applyFilters(currentMembers);
+    const filteredAlumniMembers = applyFilters(alumniMembers);
+    const displayedMembers = activeTab === 'current' ? filteredCurrentMembers : filteredAlumniMembers;
+
+    const handleFilterChange = (filterType, value) => {
+        setFilters(prev => ({ ...prev, [filterType]: value }));
+    };
+
+    const handleClearFilters = () => {
+        setFilters({ domain: '', position: '' });
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -369,251 +209,85 @@ export default function Teams() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {teams.map((member) => (
-                        <div
-                            key={member._id}
-                            className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+                {/* Tab Navigation */}
+                <div className="mb-6 border-b border-gray-200">
+                    <nav className="flex gap-8">
+                        <button
+                            onClick={() => setActiveTab('current')}
+                            className={`pb-4 px-1 text-sm font-medium border-b-2 transition-colors ${activeTab === 'current'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                }`}
                         >
-                            <div className="flex items-start gap-4 mb-4">
-                                <div className="flex-shrink-0">
-                                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-100 relative">
-                                        {renderProfileImage(member)}
-                                    </div>
-                                </div>
+                            Current Members
+                            <span className="ml-2 bg-gray-100 text-gray-900 px-2 py-0.5 rounded-full text-xs">
+                                {filteredCurrentMembers.length}
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('alumni')}
+                            className={`pb-4 px-1 text-sm font-medium border-b-2 transition-colors ${activeTab === 'alumni'
+                                ? 'border-blue-600 text-blue-600'
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                }`}
+                        >
+                            Alumni
+                            <span className="ml-2 bg-gray-100 text-gray-900 px-2 py-0.5 rounded-full text-xs">
+                                {filteredAlumniMembers.length}
+                            </span>
+                        </button>
+                    </nav>
+                </div>
 
-                                <div className="flex-grow">
-                                    <h3 className="text-xl font-semibold text-gray-900">
-                                        {editingMember?._id === member._id ? (
-                                            <input
-                                                type="text"
-                                                value={editingMember.name}
-                                                onChange={(e) =>
-                                                    setEditingMember({ ...editingMember, name: e.target.value })
-                                                }
-                                                className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                                placeholder="Enter name"
-                                            />
-                                        ) : (
-                                            member.name
-                                        )}
-                                    </h3>
-                                    <p className="text-gray-600">
-                                        {member.position} • {member.domain}
-                                    </p>
-                                </div>
+                {/* Filter Bar */}
+                <FilterBar
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    onClearFilters={handleClearFilters}
+                />
 
-                                <div className="flex gap-2">
-                                    {editingMember?._id === member._id ? (
-                                        <button
-                                            onClick={() => handleSave(editingMember)}
-                                            className="text-green-600 hover:text-green-700"
-                                            title="Save changes"
-                                        >
-                                            <Save className="w-5 h-5" />
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleEdit(member)}
-                                            className="text-blue-600 hover:text-blue-700"
-                                            title="Edit member"
-                                        >
-                                            <Edit2 className="w-5 h-5" />
-                                        </button>
-                                    )}
-                                    <button
-                                        onClick={() => handleDelete(member._id)}
-                                        className="text-red-600 hover:text-red-700"
-                                        title="Delete member"
-                                    >
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {renderEditForm(member)}
-                        </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {displayedMembers.map((member) => (
+                        <TeamCard
+                            key={member._id}
+                            member={member}
+                            onUpdate={handleUpdate}
+                            onDelete={handleDelete}
+                        />
                     ))}
                 </div>
 
-                {showAddModal && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
-                        <div className="bg-white rounded-xl p-6 max-w-md w-full">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-semibold text-gray-900">Add Team Member</h2>
-                                <button
-                                    onClick={() => setShowAddModal(false)}
-                                    className="text-gray-500 hover:text-gray-700"
-                                >
-                                    <X className="w-6 h-6" />
-                                </button>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Profile Picture URL
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newMember.pictureUrl}
-                                        onChange={(e) =>
-                                            setNewMember({ ...newMember, pictureUrl: e.target.value })
-                                        }
-                                        className="w-full border rounded-lg px-3 py-2"
-                                        placeholder="https://example.com/image.jpg"
-                                    />
-                                    {newMember.pictureUrl && (
-                                        <div className="mt-2">
-                                            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-100 relative">
-                                                <img
-                                                    src={newMember.pictureUrl}
-                                                    alt="Preview"
-                                                    className="w-full h-full object-cover"
-                                                    onError={(e) => {
-                                                        e.target.style.display = 'none';
-                                                        e.target.nextSibling.style.display = 'flex';
-                                                    }}
-                                                />
-                                                <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-600 font-semibold text-lg absolute inset-0 hidden">
-                                                    {getInitials(newMember.name)}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newMember.name}
-                                        onChange={(e) =>
-                                            setNewMember({ ...newMember, name: e.target.value })
-                                        }
-                                        className="w-full border rounded-lg px-3 py-2"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Position
-                                    </label>
-                                    <select
-                                        value={newMember.position}
-                                        onChange={(e) =>
-                                            setNewMember({ ...newMember, position: e.target.value })
-                                        }
-                                        className="w-full border rounded-lg px-3 py-2"
-                                    >
-                                        <option value="">Select Position</option>
-                                        {POSITIONS.map((position) => (
-                                            <option key={position} value={position}>
-                                                {position}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Domain
-                                    </label>
-                                    <select
-                                        value={newMember.domain}
-                                        onChange={(e) =>
-                                            setNewMember({ ...newMember, domain: e.target.value })
-                                        }
-                                        className="w-full border rounded-lg px-3 py-2"
-                                    >
-                                        <option value="">Select Domain</option>
-                                        {DOMAINS.map((domain) => (
-                                            <option key={domain} value={domain}>
-                                                {domain}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Caption
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={newMember.caption}
-                                        onChange={(e) =>
-                                            setNewMember({ ...newMember, caption: e.target.value })
-                                        }
-                                        className="w-full border rounded-lg px-3 py-2"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Social Links
-                                    </label>
-                                    <div className="space-y-2">
-                                        <input
-                                            type="text"
-                                            placeholder="GitHub"
-                                            value={newMember.socials.github}
-                                            onChange={(e) =>
-                                                setNewMember({
-                                                    ...newMember,
-                                                    socials: { ...newMember.socials, github: e.target.value },
-                                                })
-                                            }
-                                            className="w-full border rounded-lg px-3 py-2"
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="LinkedIn"
-                                            value={newMember.socials.linkedin}
-                                            onChange={(e) =>
-                                                setNewMember({
-                                                    ...newMember,
-                                                    socials: { ...newMember.socials, linkedin: e.target.value },
-                                                })
-                                            }
-                                            className="w-full border rounded-lg px-3 py-2"
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="Instagram"
-                                            value={newMember.socials.instagram}
-                                            onChange={(e) =>
-                                                setNewMember({
-                                                    ...newMember,
-                                                    socials: { ...newMember.socials, instagram: e.target.value },
-                                                })
-                                            }
-                                            className="w-full border rounded-lg px-3 py-2"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 flex justify-end gap-3">
-                                <button
-                                    onClick={() => setShowAddModal(false)}
-                                    className="px-4 py-2 text-gray-700 hover:text-gray-900"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleAdd}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                                >
-                                    Add Member
-                                </button>
-                            </div>
-                        </div>
+                {displayedMembers.length === 0 && !loading && (
+                    <div className="text-center py-12">
+                        <p className="text-gray-500 text-lg">
+                            {activeTab === 'current'
+                                ? 'No current team members found. Add your first member!'
+                                : 'No alumni found.'}
+                        </p>
                     </div>
+                )}
+
+                <AddMemberModal
+                    isOpen={showAddModal}
+                    onClose={() => setShowAddModal(false)}
+                    onAdd={handleAdd}
+                />
+
+                <DeleteConfirmModal
+                    isOpen={deleteConfirm.isOpen}
+                    onClose={() => setDeleteConfirm({ isOpen: false, member: null })}
+                    onConfirm={confirmDelete}
+                    memberName={deleteConfirm.member?.name || ''}
+                />
+
+                {toast.show && (
+                    <Toast
+                        message={toast.message}
+                        type={toast.type}
+                        onClose={() => setToast({ show: false, message: '', type: 'success' })}
+                    />
                 )}
             </div>
         </div>
     );
-} 
+}
