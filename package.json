@@ -9,8 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-sdk/client-ses": "^3.645.0",
-    "@aws-sdk/credential-provider-node": "^3.645.0",
+    "@aws-sdk/client-ses": "^3.894.0",
+    "@aws-sdk/credential-provider-node": "^3.894.0",
     "@yudiel/react-qr-scanner": "^2.0.8",
     "@zxing/library": "^0.21.3",
     "aws-sdk": "^2.1691.0",
@@ -19,7 +19,7 @@
     "dotenv": "^16.4.7",
     "lucide-react": "^0.475.0",
     "mongoose": "^8.6.1",
-    "next": "14.2.8",
+    "next": "15.5.10",
     "nodemailer": "^6.9.15",
     "nodemailer-ses-transport": "^1.5.1",
     "qrcode": "^1.5.4",
