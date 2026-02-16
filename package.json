@@ -14,7 +14,7 @@
     "@yudiel/react-qr-scanner": "^2.0.8",
     "@zxing/library": "^0.21.3",
     "aws-sdk": "^2.1691.0",
-    "axios": "^1.7.7",
+    "axios": "^1.13.5",
     "chart.js": "^4.4.4",
     "dotenv": "^16.4.7",
     "lucide-react": "^0.475.0",
