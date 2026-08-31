@@ -1,43 +1,59 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 export const API_ENDPOINTS = {
     CONTACT: {
-        SEND_MESSAGE: `${API_BASE_URL}/api/contact`, // POST - Send a contact message
+        SEND_MESSAGE: `${API_BASE_URL}/api/contact`,
     },
     EVENTS: {
-        GET_ALL: `${API_BASE_URL}/api/events`, // GET - Retrieve all events
-        GET_BY_ID: (id) => `${API_BASE_URL}/api/event/${id}`, // GET - Retrieve a single event by ID
-        CREATE: `${API_BASE_URL}/api/events/createEvent`, // POST - Create a new event
-        UPDATE: (id) => `${API_BASE_URL}/api/event/update/${id}`, // PUT - Update an existing event
-        DELETE: (id) => `${API_BASE_URL}/api/event/delete/${id}`, // DELETE - Delete an event
+        GET_ALL: `${API_BASE_URL}/api/events`,
+        GET_BY_ID: (id) => `${API_BASE_URL}/api/events/${id}`,
+        GET_BY_SLUG: (slug) => `${API_BASE_URL}/api/events/slug/${slug}`,
+        PARTICIPANTS: (slug) => `${API_BASE_URL}/api/events/participants/${slug}`,
+        UPDATE_PARTICIPANT: (email) => `${API_BASE_URL}/api/events/participants/${email}`,
+        CHECKIN: `${API_BASE_URL}/api/events/checkin`,
+        SNACKS: `${API_BASE_URL}/api/events/snacks`,
+        CREATE: `${API_BASE_URL}/api/events`,
+        UPDATE: (id) => `${API_BASE_URL}/api/events/${id}`,
+        DELETE: (id) => `${API_BASE_URL}/api/events/${id}`,
+    },
+    RECRUITMENT: {
+        GET_ALL: `${API_BASE_URL}/api/recruitment`,
+        GET_BY_ID: (id) => `${API_BASE_URL}/api/recruitment/${id}`,
+        CREATE: `${API_BASE_URL}/api/recruitment`,
+        UPDATE: (id) => `${API_BASE_URL}/api/recruitment/${id}`,
+        DELETE: (id) => `${API_BASE_URL}/api/recruitment/${id}`,
+        BATCH_UPDATE: `${API_BASE_URL}/api/recruitment/batch`,
+        ANALYTICS: `${API_BASE_URL}/api/recruitment/analytics`,
     },
     SPONSORS: {
-        GET_ALL: `${API_BASE_URL}/api/sponsors`, // GET - Retrieve all sponsors
-        GET_BY_ID: (id) => `${API_BASE_URL}/api/sponsor/${id}`, // GET - Retrieve a single sponsor by ID
-        CREATE: `${API_BASE_URL}/api/sponsor/create`, // POST - Create a new sponsor
-        UPDATE: (id) => `${API_BASE_URL}/api/sponsor/update/${id}`, // PUT - Update an existing sponsor
-        DELETE: (id) => `${API_BASE_URL}/api/sponsor/delete/${id}`, // DELETE - Delete a sponsor
+        GET_ALL: `${API_BASE_URL}/api/sponsors`,
+        GET_BY_ID: (id) => `${API_BASE_URL}/api/sponsors/${id}`,
+        CREATE: `${API_BASE_URL}/api/sponsors`,
+        UPDATE: (id) => `${API_BASE_URL}/api/sponsors/${id}`,
+        DELETE: (id) => `${API_BASE_URL}/api/sponsors/${id}`,
     },
     TEAM: {
-        GET_ALL: `${API_BASE_URL}/api/team`, // GET - Retrieve all team members
-        GET_BY_ID: (id) => `${API_BASE_URL}/api/team/${id}`, // GET - Retrieve a single team member by ID
-        CREATE: `${API_BASE_URL}/api/team`, // POST - Create a new team member
-        UPDATE: (id) => `${API_BASE_URL}/api/team/${id}`, // PUT - Update an existing team member
-        DELETE: (id) => `${API_BASE_URL}/api/team/${id}`, // DELETE - Delete a team member
+        GET_ALL: `${API_BASE_URL}/api/team`,
+        GET_BY_ID: (id) => `${API_BASE_URL}/api/team/${id}`,
+        CREATE: `${API_BASE_URL}/api/team`,
+        UPDATE: (id) => `${API_BASE_URL}/api/team/${id}`,
+        DELETE: (id) => `${API_BASE_URL}/api/team/${id}`,
     },
     CERTIFICATES: {
-        GENERATE: `${API_BASE_URL}/api/certificate/generate`, // POST - Generate a certificate for an event participant
-        VERIFY: (certificateId) => `${API_BASE_URL}/api/certificate/verify/${certificateId}`, // GET - Verify the authenticity of a certificate
-        DOWNLOAD: (certificateId) => `${API_BASE_URL}/api/certificate/download/${certificateId}`, // GET - Download a verified certificate
+        GENERATE: `${API_BASE_URL}/api/certificate/generate`,
+        VERIFY: (certificateId) => `${API_BASE_URL}/api/certificate/verify/${certificateId}`,
+        DOWNLOAD: (certificateId) => `${API_BASE_URL}/api/certificate/download/${certificateId}`,
     },
 };
+
 export const API_CONFIG = {
-    TIMEOUT: 30000, // 30 seconds
+    TIMEOUT: 30000,
     HEADERS: {
         "Content-Type": "application/json",
         Accept: "application/json",
     },
 };
+
 export const CONTACT_INFO = {
     EMAIL: "community@githubsrmist.in",
     WEBSITE: "https://githubsrmist.in",

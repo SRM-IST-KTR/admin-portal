@@ -6,7 +6,7 @@ import withAuth from "@/components/withAuth";
 import { PlusCircle } from "lucide-react";
 import AddEvent from "@/components/events/AddEvent";
 import EventSkeleton from "@/components/events/EventSkeleton";
-
+import { API_ENDPOINTS } from "@/utils/config";
 const Events = () => {
   const [activeEvents, setActiveEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
@@ -19,8 +19,8 @@ const Events = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/v1/events");
-      const eventsData = response.data.data;
+      const response = await axios.get(API_ENDPOINTS.EVENTS.GET_ALL);
+      const eventsData = response.data.data || [];
 
       const active = eventsData.filter((event) => event.is_active);
       const past = eventsData.filter((event) => !event.is_active);

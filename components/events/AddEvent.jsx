@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import withAuth from "@/components/withAuth";
 import { ChevronLeft, ChevronRight, Save, Loader2, CheckCircle } from "lucide-react";
-
+import { API_ENDPOINTS } from "@/utils/config";
 const AddEvent = ({ onClose }) => {
     const router = useRouter();
     const [step, setStep] = useState(1);
@@ -98,7 +98,7 @@ const AddEvent = ({ onClose }) => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await axios.post("/api/v1/events/createEvent", formData);
+            await axios.post(API_ENDPOINTS.EVENTS.CREATE, formData);
             setShowSuccess(true);
             setTimeout(() => {
                 onClose();
