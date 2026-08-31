@@ -10,7 +10,7 @@ import SendRsvpModal from "@/components/events/SendRsvpModal";
 import FilterDropdown from "@/components/events/FilterDropdown";
 import QRScannerModal from "@/components/events/QRScannerModal";
 import { Download, Mail, QrCode, Users } from "lucide-react";
-
+import { API_ENDPOINTS } from "@/utils/config";
 const convertToCSV = (data) => {
   const header = Object.keys(data[0]).join(",") + "\n";
   const rows = data.map((row) =>
@@ -41,14 +41,14 @@ const EventDetails = () => {
     if (slug) {
       const fetchEvent = async () => {
         try {
-          const response = await axios.get(`/api/v1/events/${slug}`);
+          const response = await axios.get(API_ENDPOINTS.EVENTS.GET_BY_SLUG(slug));
           const eventData = response.data.data;
           setEvent(eventData);
 
           const participantResponse = await axios.get(
-            `/api/v1/events/participants/${slug}`
+            API_ENDPOINTS.EVENTS.PARTICIPANTS(slug)
           );
-          const participantsData = participantResponse.data.data;
+          const participantsData = participantResponse.data.data || [];
           setParticipants(participantsData);
           setFilteredParticipants(participantsData);
         } catch (error) {
@@ -87,7 +87,7 @@ const EventDetails = () => {
   const handleSave = async () => {
     try {
       await axios.put(
-        `/api/v1/events/participants/${selectedParticipant.email}`,
+        API_ENDPOINTS.EVENTS.UPDATE_PARTICIPANT(selectedParticipant.email),
         {
           eventSlug: slug,
           name: selectedParticipant.name,
@@ -101,9 +101,9 @@ const EventDetails = () => {
         }
       );
 
-      const response = await axios.get(`/api/v1/events/participants/${slug}`);
-      setParticipants(response.data.data);
-      setFilteredParticipants(response.data.data);
+      const response = await axios.get(API_ENDPOINTS.EVENTS.PARTICIPANTS(slug));
+      setParticipants(response.data.data || []);
+      setFilteredParticipants(response.data.data || []);
       handleModalClose();
     } catch (error) {
       console.error("Error updating participant data:", error);
