@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { BrowserMultiFormatReader } from "@zxing/library";
+import { X, Check, RefreshCw } from "lucide-react";
 import axios from "axios";
+import { API_ENDPOINTS } from "@/utils/config";
 
-const QRScannerModal = ({ onClose }) => {
+const QRScannerModal = ({ isOpen, onClose, eventName }) => {
   const [qrData, setQrData] = useState("");
   const [selection, setSelection] = useState("");
   const [scanning, setScanning] = useState(true);
@@ -54,9 +56,9 @@ const QRScannerModal = ({ onClose }) => {
 
       let response;
       if (selection === "checkin") {
-        response = await axios.post("/api/v1/events/checkin", { slug, email });
+        response = await axios.post(API_ENDPOINTS.EVENTS.CHECKIN, { slug, email });
       } else if (selection === "snacks") {
-        response = await axios.post("/api/v1/events/snacks", { slug, email });
+        response = await axios.post(API_ENDPOINTS.EVENTS.SNACKS, { slug, email });
       }
 
       // If error occurs, set error state

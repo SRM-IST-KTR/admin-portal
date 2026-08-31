@@ -1,0 +1,84 @@
+import React from "react";
+import { CheckSquare, Download, Trash2, X } from "lucide-react";
+
+const BulkActionBar = ({
+  selectedCount = 0,
+  onClearSelection,
+  onBulkStatusChange,
+  onBulkDelete,
+  onExportSelected,
+}) => {
+  if (selectedCount === 0) return null;
+
+  return (
+    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 bg-zinc-900 dark:bg-zinc-100 text-zinc-100 dark:text-zinc-900 px-4 py-2.5 rounded-2xl shadow-xl border border-zinc-800 dark:border-zinc-200 flex items-center gap-3 text-xs animate-in fade-in slide-in-from-bottom-3 duration-150">
+      <div className="flex items-center gap-1.5 font-mono pr-2.5 border-r border-zinc-800 dark:border-zinc-300">
+        <CheckSquare className="w-3.5 h-3.5 text-blue-400 dark:text-blue-600" />
+        <span className="font-semibold">{selectedCount} Selected</span>
+      </div>
+
+      {/* Stage actions */}
+      <div className="flex items-center gap-1">
+        <span className="text-[11px] text-zinc-400 dark:text-zinc-500 mr-1 hidden sm:inline">Advance:</span>
+        <button
+          type="button"
+          onClick={() => onBulkStatusChange("taskSubmitted")}
+          className="px-2 py-1 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white transition-colors text-[11px] font-medium active:scale-[0.98]"
+        >
+          Task Sub.
+        </button>
+        <button
+          type="button"
+          onClick={() => onBulkStatusChange("interviewShortlisted")}
+          className="px-2 py-1 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 dark:hover:text-white transition-colors text-[11px] font-medium active:scale-[0.98]"
+        >
+          Shortlist
+        </button>
+        <button
+          type="button"
+          onClick={() => onBulkStatusChange("onboarding")}
+          className="px-2 py-1 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white transition-colors text-[11px] font-medium active:scale-[0.98]"
+        >
+          Onboard
+        </button>
+        <button
+          type="button"
+          onClick={() => onBulkStatusChange("rejected")}
+          className="px-2 py-1 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-colors text-[11px] font-medium active:scale-[0.98]"
+        >
+          Reject
+        </button>
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-1 pl-2.5 border-l border-zinc-800 dark:border-zinc-300">
+        <button
+          type="button"
+          onClick={onExportSelected}
+          className="p-1 text-zinc-300 dark:text-zinc-600 hover:text-white dark:hover:text-zinc-900 rounded-lg transition-colors"
+          title="Export selected as CSV"
+        >
+          <Download className="w-3.5 h-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={onBulkDelete}
+          className="p-1 text-zinc-300 dark:text-zinc-600 hover:text-red-400 dark:hover:text-red-600 rounded-lg transition-colors"
+          title="Delete selected"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={onClearSelection}
+          className="p-1 text-zinc-400 dark:text-zinc-500 hover:text-white dark:hover:text-zinc-900 rounded-lg transition-colors"
+          title="Clear selection"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default BulkActionBar;
