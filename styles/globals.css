@@ -40,3 +40,31 @@ body {
 .animate-slide-in {
   animation: slide-in 0.3s ease-out;
 }
+
+/* Animate utilities (no library needed) */
+@keyframes in-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes in-zoom {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes in-slide-bottom {
+  from { opacity: 0; transform: translateY(10%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@layer utilities {
+  .animate-in { animation: in-fade 0.15s ease-out; }
+  .fade-in { animation: in-fade 0.15s ease-out; }
+  .zoom-in-95 { animation: in-zoom 0.15s ease-out; }
+  .slide-in-from-bottom-3 { animation: in-slide-bottom 0.15s ease-out; }
+  .duration-150 { animation-duration: 150ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-in, .fade-in, .zoom-in-95, .slide-in-from-bottom-3 {
+      animation: none;
+    }
+  }
+}

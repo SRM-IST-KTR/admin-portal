@@ -8,6 +8,7 @@ import RecruitmentFilters from "@/components/recruitments/RecruitmentFilters";
 import RecruitmentTable from "@/components/recruitments/RecruitmentTable";
 import CandidateModal from "@/components/recruitments/CandidateModal";
 import BulkActionBar from "@/components/recruitments/BulkActionBar";
+import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { API_ENDPOINTS } from "@/utils/config";
 import {
   Download,
@@ -90,6 +91,13 @@ const RecruitmentPage = () => {
   const showToast = (message, type = "success") => {
     setToast({ show: true, message, type });
   };
+
+  // Confirmation dialog state
+  const [confirm, setConfirm] = useState(null);
+  const askConfirm = (opts) =>
+    new Promise((resolve) => {
+      setConfirm({ ...opts, onConfirm: () => { setConfirm(null); resolve(true); }, onCancel: () => { setConfirm(null); resolve(false); } });
+    });
 
   // Fetch Recruitment Data from backend
   const fetchData = async (showRefreshSpinner = false) => {
@@ -234,9 +242,24 @@ const RecruitmentPage = () => {
     setYearFilter("all");
     setLinksFilter("all");
   };
+  const STATUS_LABELS = {
+    registered: "Registered",
+    taskSubmitted: "Task Submitted",
+    interviewShortlisted: "Interview Shortlisted",
+    onboarding: "Selected / Onboarded",
+    rejected: "Rejected",
+  };
 
   // Status Change Handler (Single Candidate via backend)
   const handleStatusChange = async (candidateId, newStatus) => {
+    const candidate = candidates.find((c) => c._id === candidateId);
+    const ok = await askConfirm({
+      title: "Update stage status?",
+      message: `Move ${candidate?.name || "this candidate"} to "${STATUS_LABELS[newStatus] || newStatus}"?`,
+      confirmText: "Update stage",
+    });
+    if (!ok) return;
+
     try {
       const response = await axios.put(API_ENDPOINTS.RECRUITMENT.UPDATE(candidateId), {
         status: newStatus,
@@ -246,7 +269,7 @@ const RecruitmentPage = () => {
         setCandidates((prev) =>
           prev.map((c) => (c._id === candidateId ? { ...c, status: newStatus } : c))
         );
-        showToast(`Candidate stage updated to ${newStatus}`);
+        showToast(`Candidate stage updated to ${STATUS_LABELS[newStatus] || newStatus}`);
       }
     } catch (err) {
       console.error("Error updating candidate status:", err);
@@ -270,8 +293,18 @@ const RecruitmentPage = () => {
     }
   };
 
-  // Delete Single Candidate Handler (via backend)
-  const handleDeleteCandidate = async (candidate) => {
+  const handleDeleteCandidate = async (candidate, skipConfirm = false) => {
+    if (!skipConfirm) {
+      const ok = await askConfirm({
+        title: "Delete candidate record?",
+        message: `Permanently delete ${candidate.name}'s application?`,
+        detail: `${candidate.registrationNumber} • ${candidate.email}`,
+        confirmText: "Delete",
+        tone: "danger",
+      });
+      if (!ok) return;
+    }
+
     try {
       const response = await axios.delete(API_ENDPOINTS.RECRUITMENT.DELETE(candidate._id));
 
@@ -307,6 +340,13 @@ const RecruitmentPage = () => {
   const handleBulkStatusChange = async (newStatus) => {
     if (selectedIds.length === 0) return;
 
+    const ok = await askConfirm({
+      title: "Bulk stage update?",
+      message: `Advance ${selectedIds.length} selected candidates to "${STATUS_LABELS[newStatus] || newStatus}"?`,
+      confirmText: "Advance all",
+    });
+    if (!ok) return;
+
     try {
       const response = await axios.post(API_ENDPOINTS.RECRUITMENT.BATCH_UPDATE, {
         action: "updateStatus",
@@ -318,7 +358,7 @@ const RecruitmentPage = () => {
         setCandidates((prev) =>
           prev.map((c) => (selectedIds.includes(c._id) ? { ...c, status: newStatus } : c))
         );
-        showToast(`Advanced ${selectedIds.length} candidates to ${newStatus}`);
+        showToast(`Advanced ${selectedIds.length} candidates to ${STATUS_LABELS[newStatus] || newStatus}`);
         setSelectedIds([]);
       }
     } catch (err) {
@@ -330,9 +370,15 @@ const RecruitmentPage = () => {
   // Bulk Delete Handler (via backend)
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
-    if (!window.confirm(`Delete ${selectedIds.length} selected candidate records?`)) {
-      return;
-    }
+
+    const ok = await askConfirm({
+      title: "Bulk delete records?",
+      message: `Permanently delete ${selectedIds.length} selected candidate records?`,
+      confirmText: "Delete all",
+      tone: "danger",
+    });
+    if (!ok) return;
+
 
     try {
       const response = await axios.post(API_ENDPOINTS.RECRUITMENT.BATCH_UPDATE, {
@@ -561,6 +607,17 @@ const RecruitmentPage = () => {
         onBulkStatusChange={handleBulkStatusChange}
         onBulkDelete={handleBulkDelete}
         onExportSelected={handleExportSelected}
+      />
+
+      <ConfirmDialog
+        open={Boolean(confirm)}
+        title={confirm?.title}
+        message={confirm?.message}
+        detail={confirm?.detail}
+        confirmText={confirm?.confirmText}
+        tone={confirm?.tone}
+        onConfirm={confirm?.onConfirm}
+        onCancel={confirm?.onCancel}
       />
     </div>
   );

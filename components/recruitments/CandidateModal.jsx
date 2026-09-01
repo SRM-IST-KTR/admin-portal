@@ -93,7 +93,7 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      await onDelete(candidate);
+      await onDelete(candidate, true);
       onClose();
     } catch (err) {
       setFormError(err.message || "Failed to delete candidate.");
