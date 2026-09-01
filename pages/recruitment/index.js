@@ -135,7 +135,7 @@ const RecruitmentPage = () => {
   // Compute Aggregated Statistics
   const { domainCounts, yearCounts, statusCounts, yearDomainData } = useMemo(() => {
     const dCounts = { Technical: 0, Creatives: 0, Corporate: 0, Other: 0 };
-    const yCounts = { firstYear: 0, secondYear: 0, thirdYear: 0, other: 0 };
+    const yCounts = { firstYear: 0, secondYear: 0, other: 0 };
     const sCounts = {
       registered: 0,
       task_assigned: 0,
@@ -169,9 +169,6 @@ const RecruitmentPage = () => {
       } else if (yStr.includes("2") || yStr.includes("2nd")) {
         yKey = "secondYear";
         yCounts.secondYear++;
-      } else if (yStr.includes("3") || yStr.includes("3rd")) {
-        yKey = "thirdYear";
-        yCounts.thirdYear++;
       } else {
         yCounts.other++;
       }
@@ -214,6 +211,20 @@ const RecruitmentPage = () => {
         if ((item.domain || "").toLowerCase() !== domainFilter.toLowerCase()) {
           return false;
         }
+      }
+
+      if (statusFilter !== "all") {
+        let candidateStatus = item.status || "registered";
+        if (candidateStatus === "interviewShortlist") candidateStatus = "interviewShortlisted";
+        if (candidateStatus !== statusFilter) {
+          return false;
+        }
+      }
+
+      if (yearFilter !== "all") {
+        const yStr = String(item.year || "").toLowerCase();
+        if (yearFilter === "1st" && !yStr.includes("1")) return false;
+        if (yearFilter === "2nd" && !yStr.includes("2")) return false;
       }
 
       if (linksFilter !== "all") {
@@ -523,7 +534,7 @@ const RecruitmentPage = () => {
             }`}
           >
             <TableIcon className="w-3.5 h-3.5" />
-            <span>Roster ({candidates.length})</span>
+            <span>Roster ({filteredCandidates.length})</span>
           </button>
         </div>
       </div>

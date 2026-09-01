@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     // Domains
     const domainCounts = { Technical: 0, Creatives: 0, Corporate: 0, Other: 0 };
     // Years
-    const yearCounts = { firstYear: 0, secondYear: 0, thirdYear: 0, other: 0 };
+    const yearCounts = { firstYear: 0, secondYear: 0, other: 0 };
     // Statuses
     const statusCounts = {
       registered: 0,
@@ -76,9 +76,6 @@ export default async function handler(req, res) {
       } else if (yStr.includes("2") || yStr.includes("2nd")) {
         yKey = "secondYear";
         yearCounts.secondYear++;
-      } else if (yStr.includes("3") || yStr.includes("3rd")) {
-        yKey = "thirdYear";
-        yearCounts.thirdYear++;
       } else {
         yearCounts.other++;
       }

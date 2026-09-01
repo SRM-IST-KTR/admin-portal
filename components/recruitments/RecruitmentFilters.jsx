@@ -82,7 +82,6 @@ const RecruitmentFilters = ({
           <option value="all">All Seniority</option>
           <option value="1st">1st Year</option>
           <option value="2nd">2nd Year</option>
-          <option value="3rd">3rd Year</option>
         </select>
 
         {/* Status Dropdown */}
