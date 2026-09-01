@@ -1,5 +1,5 @@
-import React from "react";
-import { Doughnut, Bar } from "react-chartjs-2";
+import React, { useMemo } from "react";
+import { Doughnut, Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -11,6 +11,7 @@ import {
   Title,
   PointElement,
   LineElement,
+  Filler,
 } from "chart.js";
 import {
   PieChart as PieIcon,
@@ -22,6 +23,7 @@ import {
   Globe,
   ExternalLink,
 } from "lucide-react";
+import { groupBranches } from "@/utils/branchNormalize";
 
 ChartJS.register(
   ArcElement,
@@ -32,7 +34,8 @@ ChartJS.register(
   BarElement,
   Title,
   PointElement,
-  LineElement
+  LineElement,
+  Filler
 );
 
 const RecruitmentAnalytics = ({
@@ -52,7 +55,6 @@ const RecruitmentAnalytics = ({
   let demoCount = 0;
   let deploymentCount = 0;
   let anyLinkCount = 0;
-  const branchMap = {};
 
   data.forEach((item) => {
     const gh = Boolean(item.links?.github && item.links.github.trim() !== "");
@@ -63,14 +65,18 @@ const RecruitmentAnalytics = ({
     if (dm) demoCount++;
     if (dp) deploymentCount++;
     if (gh || dm || dp) anyLinkCount++;
-
-    const branch = (item.degreeWithBranch || "General / Undecided").trim();
-    branchMap[branch] = (branchMap[branch] || 0) + 1;
   });
 
-  const topBranches = Object.entries(branchMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+  const branchGroups = useMemo(() => groupBranches(data), [data]);
+
+  const timeline = useMemo(() => {
+    const counts = {};
+    data.forEach((item) => {
+      const d = String(item.createdAt || "").slice(0, 10);
+      if (d) counts[d] = (counts[d] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [data]);
 
   // Chart 1: Domain Distribution Doughnut
   const domainChartData = {
@@ -239,8 +245,8 @@ const RecruitmentAnalytics = ({
   };
 
   // Chart 4: Academic Disciplines
-  const branchLabels = topBranches.map(([b]) => (b.length > 22 ? b.slice(0, 22) + "…" : b));
-  const branchValues = topBranches.map(([, count]) => count);
+  const branchLabels = branchGroups.slice(0, 6).map((g) => (g.label.length > 22 ? g.label.slice(0, 22) + "…" : g.label));
+  const branchValues = branchGroups.slice(0, 6).map((g) => g.count);
 
   const branchChartData = {
     labels: branchLabels,
@@ -251,6 +257,36 @@ const RecruitmentAnalytics = ({
         borderRadius: 6,
       },
     ],
+  };
+
+  const timelineChartData = {
+    labels: timeline.map(([d]) => d.slice(5)),
+    datasets: [
+      {
+        label: "Registrations",
+        data: timeline.map(([, c]) => c),
+        borderColor: "rgba(14, 165, 233, 0.9)",
+        backgroundColor: "rgba(14, 165, 233, 0.15)",
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+        pointBackgroundColor: "rgba(14, 165, 233, 1)",
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const timelineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { backgroundColor: "#18181b", padding: 10, cornerRadius: 8 },
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: "#71717a", font: { size: 10 } }, offset: true },
+      y: { beginAtZero: true, grace: "20%", ticks: { stepSize: 1, color: "#71717a", font: { size: 10 } }, grid: { color: "rgba(161, 161, 170, 0.1)" } },
+    },
   };
 
   return (
@@ -374,7 +410,7 @@ const RecruitmentAnalytics = ({
           </div>
 
           <div className="h-56">
-            {topBranches.length > 0 ? (
+            {branchGroups.length > 0 ? (
               <Bar
                 data={branchChartData}
                 options={{
@@ -394,9 +430,29 @@ const RecruitmentAnalytics = ({
           </div>
 
           <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
-            <span>Unique Branches: <strong className="font-mono text-zinc-800 dark:text-zinc-200">{Object.keys(branchMap).length}</strong></span>
-            <span className="truncate max-w-[180px]">Top: {topBranches[0]?.[0] || "N/A"}</span>
+            <span>Merged Branches: <strong className="font-mono text-zinc-800 dark:text-zinc-200">{branchGroups.length}</strong></span>
+            <span className="truncate max-w-[180px]">Top: {branchGroups[0]?.label || "N/A"}</span>
           </div>
+        </div>
+      </div>
+
+      {/* Registration Timeline */}
+      <div className="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
+              Registrations Over Time
+            </h3>
+          </div>
+          <span className="text-xs font-mono text-zinc-500">{timeline.length} active days</span>
+        </div>
+        <div className="h-56">
+          {timeline.length > 0 ? (
+            <Line data={timelineChartData} options={timelineOptions} />
+          ) : (
+            <div className="h-full flex items-center justify-center text-xs text-zinc-400">No registration data</div>
+          )}
         </div>
       </div>
 
