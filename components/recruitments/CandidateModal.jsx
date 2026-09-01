@@ -15,6 +15,37 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import { Figma, Palette, File, FileText, Video } from "lucide-react";
+
+const normalizeDomain = (domain) => {
+  const d = String(domain || "");
+  if (/technical/i.test(d)) return "Technical";
+  if (/creative/i.test(d)) return "Creatives";
+  if (/corporate/i.test(d)) return "Corporate";
+  return d;
+};
+
+const DOMAIN_SUBMISSION_FIELDS = {
+  Technical: [
+    { key: "github", icon: Github, placeholder: "GitHub repo: https://github.com/...", bg: "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700", color: "text-zinc-800 dark:text-zinc-200" },
+    { key: "demo", icon: Globe, placeholder: "Live Demo: https://...", bg: "bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400", color: "text-blue-600 dark:text-blue-400" },
+    { key: "deployment", icon: ExternalLink, placeholder: "Deployment: https://...", bg: "bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 text-emerald-600 dark:text-emerald-400", color: "text-emerald-600 dark:text-emerald-400" },
+  ],
+  Creatives: [
+    { key: "figmaPlugins", icon: Figma, placeholder: "Figma plugins / file: https://figma.com/...", bg: "bg-orange-50 dark:bg-orange-950/50 hover:bg-orange-100 text-orange-600 dark:text-orange-400", color: "text-orange-600 dark:text-orange-400" },
+    { key: "design", icon: Palette, placeholder: "Design link: https://...", bg: "bg-pink-50 dark:bg-pink-950/50 hover:bg-pink-100 text-pink-600 dark:text-pink-400", color: "text-pink-600 dark:text-pink-400" },
+    { key: "designFiles", icon: File, placeholder: "Design files: https://drive.google.com/...", bg: "bg-violet-50 dark:bg-violet-950/50 hover:bg-violet-100 text-violet-600 dark:text-violet-400", color: "text-violet-600 dark:text-violet-400" },
+  ],
+  Corporate: [
+    { key: "document", icon: FileText, placeholder: "Document / report: https://drive.google.com/...", bg: "bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400", color: "text-blue-600 dark:text-blue-400" },
+    { key: "introVideo", icon: Video, placeholder: "Intro video: https://youtube.com/...", bg: "bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-rose-600 dark:text-rose-400", color: "text-rose-600 dark:text-rose-400" },
+  ],
+  fallback: [
+    { key: "github", icon: Github, placeholder: "GitHub repo: https://github.com/...", bg: "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700", color: "text-zinc-800 dark:text-zinc-200" },
+    { key: "demo", icon: Globe, placeholder: "Live Demo: https://...", bg: "bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400", color: "text-blue-600 dark:text-blue-400" },
+    { key: "deployment", icon: ExternalLink, placeholder: "Deployment: https://...", bg: "bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 text-emerald-600 dark:text-emerald-400", color: "text-emerald-600 dark:text-emerald-400" },
+  ],
+};
 
 const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
   const [formData, setFormData] = useState({
@@ -26,7 +57,16 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
     domain: "",
     degreeWithBranch: "",
     status: "registered",
-    links: { github: "", demo: "", deployment: "" },
+    links: {
+      github: "",
+      demo: "",
+      deployment: "",
+      figmaPlugins: "",
+      design: "",
+      designFiles: "",
+      document: "",
+      introVideo: "",
+    },
     notes: "",
   });
 
@@ -50,6 +90,11 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
           github: candidate.links?.github || "",
           demo: candidate.links?.demo || "",
           deployment: candidate.links?.deployment || "",
+          figmaPlugins: candidate.links?.figmaPlugins || candidate.figmaPlugins || "",
+          design: candidate.links?.design || candidate.designLink || "",
+          designFiles: candidate.links?.designFiles || "",
+          document: candidate.links?.document || candidate.documentLink || "",
+          introVideo: candidate.links?.introVideo || "",
         },
         notes: candidate.notes || "",
       });
@@ -142,6 +187,17 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
             </button>
             <button
               type="button"
+              onClick={() => handleInputChange("status", "task_assigned")}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all active:scale-[0.98] ${
+                formData.status === "task_assigned"
+                  ? "bg-sky-600 text-white"
+                  : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
+              }`}
+            >
+              2. Task Assigned
+            </button>
+            <button
+              type="button"
               onClick={() => handleInputChange("status", "taskSubmitted")}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all active:scale-[0.98] ${
                 formData.status === "taskSubmitted"
@@ -149,7 +205,7 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
                   : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
               }`}
             >
-              2. Task Sub.
+              3. Task Sub.
             </button>
             <button
               type="button"
@@ -160,7 +216,7 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
                   : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
               }`}
             >
-              3. Shortlist
+              4. Shortlist
             </button>
             <button
               type="button"
@@ -171,7 +227,18 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
                   : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
               }`}
             >
-              4. Onboard
+              5. Onboard
+            </button>
+            <button
+              type="button"
+              onClick={() => handleInputChange("status", "underReview")}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all active:scale-[0.98] ${
+                formData.status === "underReview"
+                  ? "bg-purple-600 text-white"
+                  : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
+              }`}
+            >
+              Review
             </button>
             <button
               type="button"
@@ -281,71 +348,33 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
           {/* Submission Links */}
           <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
             <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">
-              Submission Links
+              Submission Links — {formData.domain}
             </span>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="url"
-                value={formData.links.github || ""}
-                onChange={(e) => handleLinkChange("github", e.target.value)}
-                placeholder="GitHub link: https://github.com/..."
-                className="flex-1 px-2.5 py-1.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-              />
-              {formData.links.github && (
-                <a
-                  href={formData.links.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg text-zinc-800 dark:text-zinc-200 transition-colors"
-                  title="Open GitHub"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="url"
-                value={formData.links.demo || ""}
-                onChange={(e) => handleLinkChange("demo", e.target.value)}
-                placeholder="Live Demo link: https://..."
-                className="flex-1 px-2.5 py-1.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-              />
-              {formData.links.demo && (
-                <a
-                  href={formData.links.demo}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1.5 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 rounded-lg transition-colors"
-                  title="Open Demo"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="url"
-                value={formData.links.deployment || ""}
-                onChange={(e) => handleLinkChange("deployment", e.target.value)}
-                placeholder="Deployment link: https://..."
-                className="flex-1 px-2.5 py-1.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-              />
-              {formData.links.deployment && (
-                <a
-                  href={formData.links.deployment}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1.5 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 text-emerald-600 dark:text-emerald-400 rounded-lg transition-colors"
-                  title="Open Deployment"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              )}
-            </div>
+            {(DOMAIN_SUBMISSION_FIELDS[normalizeDomain(formData.domain)] || DOMAIN_SUBMISSION_FIELDS.fallback).map(
+              ({ key, icon: Icon, placeholder, bg, color }) => (
+                <div className="flex items-center gap-2" key={key}>
+                  <input
+                    type="url"
+                    value={formData.links[key] || ""}
+                    onChange={(e) => handleLinkChange(key, e.target.value)}
+                    placeholder={placeholder}
+                    className="flex-1 px-2.5 py-1.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
+                  />
+                  {formData.links[key] && (
+                    <a
+                      href={formData.links[key]}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={`p-1.5 ${bg} rounded-lg transition-colors`}
+                      title={`Open ${key}`}
+                    >
+                      <Icon className={`w-3.5 h-3.5 ${color}`} />
+                    </a>
+                  )}
+                </div>
+              )
+            )}
           </div>
 
           {/* Evaluator Notes */}

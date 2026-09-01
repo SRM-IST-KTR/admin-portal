@@ -1,5 +1,29 @@
 import React from "react";
 import { Search, X, RotateCcw } from "lucide-react";
+const LINK_FILTER_OPTIONS = {
+  Technical: [
+    { value: "hasGithub", label: "Has GitHub Repo" },
+    { value: "hasDemo", label: "Has Live Demo" },
+    { value: "hasDeployment", label: "Has Deployment" },
+  ],
+  Creatives: [
+    { value: "hasFigmaPlugins", label: "Has Figma File" },
+    { value: "hasDesign", label: "Has Design Link" },
+    { value: "hasDesignFiles", label: "Has Design Files" },
+  ],
+  Corporate: [
+    { value: "hasDocument", label: "Has Document" },
+    { value: "hasIntroVideo", label: "Has Intro Video" },
+  ],
+};
+
+const normalizeDomain = (domain) => {
+  const d = String(domain || "");
+  if (/technical/i.test(d)) return "Technical";
+  if (/creative/i.test(d)) return "Creatives";
+  if (/corporate/i.test(d)) return "Corporate";
+  return "";
+};
 
 const RecruitmentFilters = ({
   searchQuery = "",
@@ -58,7 +82,6 @@ const RecruitmentFilters = ({
           <option value="all">All Seniority</option>
           <option value="1st">1st Year</option>
           <option value="2nd">2nd Year</option>
-          <option value="3rd">3rd Year</option>
         </select>
 
         {/* Status Dropdown */}
@@ -69,9 +92,11 @@ const RecruitmentFilters = ({
         >
           <option value="all">All Stages</option>
           <option value="registered">1. Registered</option>
-          <option value="taskSubmitted">2. Task Submitted</option>
-          <option value="interviewShortlisted">3. Interview Shortlisted</option>
-          <option value="onboarding">4. Onboarded / Selected</option>
+          <option value="task_assigned">2. Task Assigned</option>
+          <option value="taskSubmitted">3. Task Submitted</option>
+          <option value="interviewShortlisted">4. Interview Shortlisted</option>
+          <option value="onboarding">5. Onboarded / Selected</option>
+          <option value="underReview">Under Review</option>
           <option value="rejected">Rejected</option>
         </select>
 
@@ -82,9 +107,9 @@ const RecruitmentFilters = ({
           className="px-3 py-2 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 rounded-xl text-xs font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100 cursor-pointer"
         >
           <option value="all">All Submissions</option>
-          <option value="hasGithub">Has GitHub Repo</option>
-          <option value="hasDemo">Has Live Demo</option>
-          <option value="hasDeployment">Has Deployment</option>
+          {(LINK_FILTER_OPTIONS[normalizeDomain(domainFilter)] || []).map(({ value, label }) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
           <option value="hasAny">Has Any Link</option>
           <option value="missingAll">Missing Links</option>
         </select>

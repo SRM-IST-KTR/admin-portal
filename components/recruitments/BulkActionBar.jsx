@@ -22,6 +22,13 @@ const BulkActionBar = ({
         <span className="text-[11px] text-zinc-400 dark:text-zinc-500 mr-1 hidden sm:inline">Advance:</span>
         <button
           type="button"
+          onClick={() => onBulkStatusChange("task_assigned")}
+          className="px-2 py-1 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-sky-600 hover:text-white dark:hover:bg-sky-600 dark:hover:text-white transition-colors text-[11px] font-medium active:scale-[0.98]"
+        >
+          Assign Task
+        </button>
+        <button
+          type="button"
           onClick={() => onBulkStatusChange("taskSubmitted")}
           className="px-2 py-1 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-amber-600 hover:text-white dark:hover:bg-amber-600 dark:hover:text-white transition-colors text-[11px] font-medium active:scale-[0.98]"
         >

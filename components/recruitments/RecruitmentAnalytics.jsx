@@ -22,6 +22,11 @@ import {
   Github,
   Globe,
   ExternalLink,
+  Figma,
+  Palette,
+  File,
+  FileText,
+  Video,
 } from "lucide-react";
 import { groupBranches } from "@/utils/branchNormalize";
 
@@ -42,8 +47,8 @@ const RecruitmentAnalytics = ({
   data = [],
   totalApplicants = 0,
   domainCounts = { Technical: 0, Creatives: 0, Corporate: 0 },
-  yearCounts = { firstYear: 0, secondYear: 0, thirdYear: 0, other: 0 },
-  statusCounts = { registered: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, rejected: 0 },
+  yearCounts = { firstYear: 0, secondYear: 0, other: 0 },
+  statusCounts = { registered: 0, task_assigned: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, underReview: 0, rejected: 0 },
   yearDomainData = {
     Technical: { firstYear: 0, secondYear: 0 },
     Creatives: { firstYear: 0, secondYear: 0 },
@@ -54,17 +59,33 @@ const RecruitmentAnalytics = ({
   let githubCount = 0;
   let demoCount = 0;
   let deploymentCount = 0;
+  let figmaPluginsCount = 0;
+  let designCount = 0;
+  let designFilesCount = 0;
+  let documentCount = 0;
+  let introVideoCount = 0;
   let anyLinkCount = 0;
 
   data.forEach((item) => {
-    const gh = Boolean(item.links?.github && item.links.github.trim() !== "");
-    const dm = Boolean(item.links?.demo && item.links.demo.trim() !== "");
-    const dp = Boolean(item.links?.deployment && item.links.deployment.trim() !== "");
+    const get = (key) => Boolean(item.links?.[key] && item.links[key].trim() !== "");
+    const gh = get("github");
+    const dm = get("demo");
+    const dp = get("deployment");
+    const fp = get("figmaPlugins");
+    const ds = get("design");
+    const df = get("designFiles");
+    const doc = get("document");
+    const iv = get("introVideo");
 
     if (gh) githubCount++;
     if (dm) demoCount++;
     if (dp) deploymentCount++;
-    if (gh || dm || dp) anyLinkCount++;
+    if (fp) figmaPluginsCount++;
+    if (ds) designCount++;
+    if (df) designFilesCount++;
+    if (doc) documentCount++;
+    if (iv) introVideoCount++;
+    if (gh || dm || dp || fp || ds || df || doc || iv) anyLinkCount++;
   });
 
   const branchGroups = useMemo(() => groupBranches(data), [data]);
@@ -194,11 +215,12 @@ const RecruitmentAnalytics = ({
 
   // Chart 3: Conversion Funnel Horizontal
   const funnelChartData = {
-    labels: ["1. Registered", "2. Task Sub.", "3. Shortlisted", "4. Onboarded", "Rejected"],
+    labels: ["1. Registered", "2. Task Assigned", "3. Task Sub.", "4. Shortlisted", "5. Onboarded", "Rejected"],
     datasets: [
       {
         data: [
           totalApplicants,
+          statusCounts.task_assigned || 0,
           statusCounts.taskSubmitted || 0,
           (statusCounts.interviewShortlisted || 0) + (statusCounts.interviewShortlist || 0),
           statusCounts.onboarding || 0,
@@ -468,11 +490,11 @@ const RecruitmentAnalytics = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
           <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-sans text-zinc-700 dark:text-zinc-300">
               <Github className="w-3.5 h-3.5" />
-              <span>GitHub Repos</span>
+              <span>GitHub</span>
             </div>
             <div className="text-right">
               <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{githubCount}</span>
@@ -481,11 +503,10 @@ const RecruitmentAnalytics = ({
               </span>
             </div>
           </div>
-
           <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-sans text-zinc-700 dark:text-zinc-300">
               <Globe className="w-3.5 h-3.5" />
-              <span>Live Demos</span>
+              <span>Demo</span>
             </div>
             <div className="text-right">
               <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{demoCount}</span>
@@ -494,16 +515,75 @@ const RecruitmentAnalytics = ({
               </span>
             </div>
           </div>
-
           <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-sans text-zinc-700 dark:text-zinc-300">
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Deployments</span>
+              <span>Deploy</span>
             </div>
             <div className="text-right">
               <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{deploymentCount}</span>
               <span className="text-[10px] text-zinc-400 block font-sans">
                 {totalApplicants > 0 ? Math.round((deploymentCount / totalApplicants) * 100) : 0}%
+              </span>
+            </div>
+          </div>
+          <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-sans text-zinc-700 dark:text-zinc-300">
+              <Figma className="w-3.5 h-3.5" />
+              <span>Figma</span>
+            </div>
+            <div className="text-right">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{figmaPluginsCount}</span>
+              <span className="text-[10px] text-zinc-400 block font-sans">
+                {totalApplicants > 0 ? Math.round((figmaPluginsCount / totalApplicants) * 100) : 0}%
+              </span>
+            </div>
+          </div>
+          <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-sans text-zinc-700 dark:text-zinc-300">
+              <Palette className="w-3.5 h-3.5" />
+              <span>Design</span>
+            </div>
+            <div className="text-right">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{designCount}</span>
+              <span className="text-[10px] text-zinc-400 block font-sans">
+                {totalApplicants > 0 ? Math.round((designCount / totalApplicants) * 100) : 0}%
+              </span>
+            </div>
+          </div>
+          <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-sans text-zinc-700 dark:text-zinc-300">
+              <File className="w-3.5 h-3.5" />
+              <span>Design Files</span>
+            </div>
+            <div className="text-right">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{designFilesCount}</span>
+              <span className="text-[10px] text-zinc-400 block font-sans">
+                {totalApplicants > 0 ? Math.round((designFilesCount / totalApplicants) * 100) : 0}%
+              </span>
+            </div>
+          </div>
+          <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-sans text-zinc-700 dark:text-zinc-300">
+              <FileText className="w-3.5 h-3.5" />
+              <span>Document</span>
+            </div>
+            <div className="text-right">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{documentCount}</span>
+              <span className="text-[10px] text-zinc-400 block font-sans">
+                {totalApplicants > 0 ? Math.round((documentCount / totalApplicants) * 100) : 0}%
+              </span>
+            </div>
+          </div>
+          <div className="p-3 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-sans text-zinc-700 dark:text-zinc-300">
+              <Video className="w-3.5 h-3.5" />
+              <span>Intro Video</span>
+            </div>
+            <div className="text-right">
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{introVideoCount}</span>
+              <span className="text-[10px] text-zinc-400 block font-sans">
+                {totalApplicants > 0 ? Math.round((introVideoCount / totalApplicants) * 100) : 0}%
               </span>
             </div>
           </div>

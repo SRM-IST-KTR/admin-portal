@@ -35,6 +35,11 @@ const exportToCSV = (data, filename = "recruitment26_data.csv") => {
     "GitHub Link",
     "Demo Link",
     "Deployment Link",
+    "Figma File",
+    "Design Link",
+    "Design Files",
+    "Document Link",
+    "Intro Video",
     "Notes",
     "Created At",
   ];
@@ -51,6 +56,11 @@ const exportToCSV = (data, filename = "recruitment26_data.csv") => {
     `"${(item.links?.github || "").replace(/"/g, '""')}"`,
     `"${(item.links?.demo || "").replace(/"/g, '""')}"`,
     `"${(item.links?.deployment || "").replace(/"/g, '""')}"`,
+    `"${(item.links?.figmaPlugins || "").replace(/"/g, '""')}"`,
+    `"${(item.links?.design || "").replace(/"/g, '""')}"`,
+    `"${(item.links?.designFiles || "").replace(/"/g, '""')}"`,
+    `"${(item.links?.document || "").replace(/"/g, '""')}"`,
+    `"${(item.links?.introVideo || "").replace(/"/g, '""')}"`,
     `"${(item.notes || "").replace(/"/g, '""')}"`,
     `"${(item.createdAt || "").replace(/"/g, '""')}"`,
   ]);
@@ -125,12 +135,14 @@ const RecruitmentPage = () => {
   // Compute Aggregated Statistics
   const { domainCounts, yearCounts, statusCounts, yearDomainData } = useMemo(() => {
     const dCounts = { Technical: 0, Creatives: 0, Corporate: 0, Other: 0 };
-    const yCounts = { firstYear: 0, secondYear: 0, thirdYear: 0, other: 0 };
+    const yCounts = { firstYear: 0, secondYear: 0, other: 0 };
     const sCounts = {
       registered: 0,
+      task_assigned: 0,
       taskSubmitted: 0,
       interviewShortlisted: 0,
       onboarding: 0,
+      underReview: 0,
       rejected: 0,
     };
     const ydMatrix = {
@@ -157,9 +169,6 @@ const RecruitmentPage = () => {
       } else if (yStr.includes("2") || yStr.includes("2nd")) {
         yKey = "secondYear";
         yCounts.secondYear++;
-      } else if (yStr.includes("3") || yStr.includes("3rd")) {
-        yKey = "thirdYear";
-        yCounts.thirdYear++;
       } else {
         yCounts.other++;
       }
@@ -216,19 +225,30 @@ const RecruitmentPage = () => {
         const yStr = String(item.year || "").toLowerCase();
         if (yearFilter === "1st" && !yStr.includes("1")) return false;
         if (yearFilter === "2nd" && !yStr.includes("2")) return false;
-        if (yearFilter === "3rd" && !yStr.includes("3")) return false;
       }
 
       if (linksFilter !== "all") {
-        const hasGithub = Boolean(item.links?.github && item.links.github.trim() !== "");
-        const hasDemo = Boolean(item.links?.demo && item.links.demo.trim() !== "");
-        const hasDeployment = Boolean(item.links?.deployment && item.links.deployment.trim() !== "");
+        const getLink = (key) => Boolean(item.links?.[key] && item.links[key].trim() !== "");
+        const hasGithub = getLink("github");
+        const hasDemo = getLink("demo");
+        const hasDeployment = getLink("deployment");
+        const hasFigmaPlugins = getLink("figmaPlugins");
+        const hasDesign = getLink("design");
+        const hasDesignFiles = getLink("designFiles");
+        const hasDocument = getLink("document");
+        const hasIntroVideo = getLink("introVideo");
+        const hasAnyLink = hasGithub || hasDemo || hasDeployment || hasFigmaPlugins || hasDesign || hasDesignFiles || hasDocument || hasIntroVideo;
 
         if (linksFilter === "hasGithub" && !hasGithub) return false;
         if (linksFilter === "hasDemo" && !hasDemo) return false;
         if (linksFilter === "hasDeployment" && !hasDeployment) return false;
-        if (linksFilter === "hasAny" && !hasGithub && !hasDemo && !hasDeployment) return false;
-        if (linksFilter === "missingAll" && (hasGithub || hasDemo || hasDeployment)) return false;
+        if (linksFilter === "hasFigmaPlugins" && !hasFigmaPlugins) return false;
+        if (linksFilter === "hasDesign" && !hasDesign) return false;
+        if (linksFilter === "hasDesignFiles" && !hasDesignFiles) return false;
+        if (linksFilter === "hasDocument" && !hasDocument) return false;
+        if (linksFilter === "hasIntroVideo" && !hasIntroVideo) return false;
+        if (linksFilter === "hasAny" && !hasAnyLink) return false;
+        if (linksFilter === "missingAll" && hasAnyLink) return false;
       }
 
       return true;
@@ -244,9 +264,11 @@ const RecruitmentPage = () => {
   };
   const STATUS_LABELS = {
     registered: "Registered",
+    task_assigned: "Task Assigned",
     taskSubmitted: "Task Submitted",
     interviewShortlisted: "Interview Shortlisted",
     onboarding: "Selected / Onboarded",
+    underReview: "Under Review",
     rejected: "Rejected",
   };
 
@@ -512,7 +534,7 @@ const RecruitmentPage = () => {
             }`}
           >
             <TableIcon className="w-3.5 h-3.5" />
-            <span>Roster ({candidates.length})</span>
+            <span>Roster ({filteredCandidates.length})</span>
           </button>
         </div>
       </div>
