@@ -13,9 +13,18 @@ import {
   Trash2,
   Inbox,
 } from "lucide-react";
+import {
+  Figma,
+  Palette,
+  File,
+  FileText,
+  Video,
+} from "lucide-react";
 
 const getStatusBadge = (status) => {
   switch (status) {
+    case "task_assigned":
+      return "bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800";
     case "taskSubmitted":
       return "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800";
     case "interviewShortlisted":
@@ -23,6 +32,8 @@ const getStatusBadge = (status) => {
       return "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800";
     case "onboarding":
       return "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
+    case "underReview":
+      return "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800";
     case "rejected":
       return "bg-red-50 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800";
     case "registered":
@@ -42,6 +53,38 @@ const getDomainBadge = (domain) => {
     default:
       return "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700";
   }
+};
+const normalizeDomain = (domain) => {
+  const d = String(domain || "");
+  if (/technical/i.test(d)) return "Technical";
+  if (/creative/i.test(d)) return "Creatives";
+  if (/corporate/i.test(d)) return "Corporate";
+  return d;
+};
+/**
+ * Domain-specific submission link configs
+ * Each domain has its own set of link keys, icons, labels, and colors.
+ */
+const DOMAIN_SUBMISSION_CONFIG = {
+  Technical: [
+    { key: "github", icon: Github, label: "GitHub", bg: "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700", color: "text-zinc-800 dark:text-zinc-200" },
+    { key: "demo", icon: Globe, label: "Demo", bg: "bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900", color: "text-blue-600 dark:text-blue-400" },
+    { key: "deployment", icon: ExternalLink, label: "Live Site", bg: "bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900", color: "text-emerald-600 dark:text-emerald-400" },
+  ],
+  Creatives: [
+    { key: "figmaPlugins", icon: Figma, label: "Figma", bg: "bg-orange-50 dark:bg-orange-950/50 hover:bg-orange-100 dark:hover:bg-orange-900", color: "text-orange-600 dark:text-orange-400" },
+    { key: "design", icon: Palette, label: "Design", bg: "bg-pink-50 dark:bg-pink-950/50 hover:bg-pink-100 dark:hover:bg-pink-900", color: "text-pink-600 dark:text-pink-400" },
+    { key: "designFiles", icon: File, label: "Files", bg: "bg-violet-50 dark:bg-violet-950/50 hover:bg-violet-100 dark:hover:bg-violet-900", color: "text-violet-600 dark:text-violet-400" },
+  ],
+  Corporate: [
+    { key: "document", icon: FileText, label: "Document", bg: "bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900", color: "text-blue-600 dark:text-blue-400" },
+    { key: "introVideo", icon: Video, label: "Intro Video", bg: "bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 dark:hover:bg-rose-900", color: "text-rose-600 dark:text-rose-400" },
+  ],
+  fallback: [
+    { key: "github", icon: Github, label: "GitHub", bg: "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700", color: "text-zinc-800 dark:text-zinc-200" },
+    { key: "demo", icon: Globe, label: "Demo", bg: "bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900", color: "text-blue-600 dark:text-blue-400" },
+    { key: "deployment", icon: ExternalLink, label: "Site", bg: "bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900", color: "text-emerald-600 dark:text-emerald-400" },
+  ],
 };
 
 const RecruitmentTable = ({
@@ -216,52 +259,23 @@ const RecruitmentTable = ({
                     {/* Submissions */}
                     <td className="py-3 px-3.5">
                       <div className="flex items-center gap-1.5">
-                        {candidate.links?.github ? (
-                          <a
-                            href={candidate.links.github}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-1 rounded bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 transition-colors"
-                            title="GitHub"
-                          >
-                            <Github className="w-3.5 h-3.5" />
-                          </a>
-                        ) : (
-                          <span className="p-1 rounded text-zinc-300 dark:text-zinc-600">
-                            <Github className="w-3.5 h-3.5" />
-                          </span>
-                        )}
-
-                        {candidate.links?.demo ? (
-                          <a
-                            href={candidate.links.demo}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-1 rounded bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-600 dark:text-blue-400 transition-colors"
-                            title="Demo"
-                          >
-                            <Globe className="w-3.5 h-3.5" />
-                          </a>
-                        ) : (
-                          <span className="p-1 rounded text-zinc-300 dark:text-zinc-600">
-                            <Globe className="w-3.5 h-3.5" />
-                          </span>
-                        )}
-
-                        {candidate.links?.deployment ? (
-                          <a
-                            href={candidate.links.deployment}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-1 rounded bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-600 dark:text-emerald-400 transition-colors"
-                            title="Live Site"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        ) : (
-                          <span className="p-1 rounded text-zinc-300 dark:text-zinc-600">
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </span>
+                        {(DOMAIN_SUBMISSION_CONFIG[normalizeDomain(candidate.domain)] || DOMAIN_SUBMISSION_CONFIG.fallback).map(({ key, icon: Icon, label, bg, color }) =>
+                          candidate.links?.[key] ? (
+                            <a
+                              key={key}
+                              href={candidate.links[key]}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={`p-1 rounded ${bg} ${color} transition-colors`}
+                              title={label}
+                            >
+                              <Icon className="w-3.5 h-3.5" />
+                            </a>
+                          ) : (
+                            <span key={key} className="p-1 rounded text-zinc-300 dark:text-zinc-600" title={label}>
+                              <Icon className="w-3.5 h-3.5" />
+                            </span>
+                          )
                         )}
                       </div>
                     </td>
@@ -274,10 +288,12 @@ const RecruitmentTable = ({
                         className={`text-[11px] font-medium rounded-lg px-2 py-1 border cursor-pointer focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100 transition-all ${getStatusBadge(candidate.status)}`}
                       >
                         <option value="registered">Registered</option>
+                        <option value="task_assigned">Task Assigned</option>
                         <option value="taskSubmitted">Task Submitted</option>
                         <option value="interviewShortlisted">Interview Shortlisted</option>
                         <option value="onboarding">Selected / Onboarded</option>
                         <option value="rejected">Rejected</option>
+                        <option value="underReview">Under Review</option>
                       </select>
                     </td>
 

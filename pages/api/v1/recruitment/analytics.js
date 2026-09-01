@@ -20,9 +20,11 @@ export default async function handler(req, res) {
     // Statuses
     const statusCounts = {
       registered: 0,
+      task_assigned: 0,
       taskSubmitted: 0,
       interviewShortlisted: 0,
       onboarding: 0,
+      underReview: 0,
       rejected: 0,
       other: 0,
     };
@@ -34,15 +36,20 @@ export default async function handler(req, res) {
     };
     // Domain x Status matrix
     const domainStatusMatrix = {
-      Technical: { registered: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, rejected: 0 },
-      Creatives: { registered: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, rejected: 0 },
-      Corporate: { registered: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, rejected: 0 },
+      Technical: { registered: 0, task_assigned: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, underReview: 0, rejected: 0 },
+      Creatives: { registered: 0, task_assigned: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, underReview: 0, rejected: 0 },
+      Corporate: { registered: 0, task_assigned: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, underReview: 0, rejected: 0 },
     };
     // Links health
     const linksStats = {
       hasGithub: 0,
       hasDemo: 0,
       hasDeployment: 0,
+      hasFigmaPlugins: 0,
+      hasDesign: 0,
+      hasDesignFiles: 0,
+      hasDocument: 0,
+      hasIntroVideo: 0,
       hasAnyLink: 0,
       hasAllLinks: 0,
     };
@@ -95,16 +102,27 @@ export default async function handler(req, res) {
         domainStatusMatrix[d][s]++;
       }
 
-      // Links
-      const github = Boolean(candidate.links?.github && candidate.links.github.trim() !== "");
-      const demo = Boolean(candidate.links?.demo && candidate.links.demo.trim() !== "");
-      const deployment = Boolean(candidate.links?.deployment && candidate.links.deployment.trim() !== "");
+      // Links (domain-specific submission fields)
+      const getLink = (key) => Boolean(candidate.links?.[key] && String(candidate.links[key]).trim() !== "");
+      const github = getLink("github");
+      const demo = getLink("demo");
+      const deployment = getLink("deployment");
+      const figmaPlugins = getLink("figmaPlugins");
+      const design = getLink("design");
+      const designFiles = getLink("designFiles");
+      const document = getLink("document");
+      const introVideo = getLink("introVideo");
 
       if (github) linksStats.hasGithub++;
       if (demo) linksStats.hasDemo++;
       if (deployment) linksStats.hasDeployment++;
-      if (github || demo || deployment) linksStats.hasAnyLink++;
-      if (github && demo && deployment) linksStats.hasAllLinks++;
+      if (figmaPlugins) linksStats.hasFigmaPlugins++;
+      if (design) linksStats.hasDesign++;
+      if (designFiles) linksStats.hasDesignFiles++;
+      if (document) linksStats.hasDocument++;
+      if (introVideo) linksStats.hasIntroVideo++;
+      if (github || demo || deployment || figmaPlugins || design || designFiles || document || introVideo) linksStats.hasAnyLink++;
+      if (github && demo && deployment && figmaPlugins && design && designFiles && document && introVideo) linksStats.hasAllLinks++;
 
       // Branch
       const branch = (candidate.degreeWithBranch || "Unknown").trim();
@@ -120,10 +138,12 @@ export default async function handler(req, res) {
     // Conversion Funnel Rates
     const funnel = {
       registered: total,
+      taskAssigned: statusCounts.task_assigned + statusCounts.taskSubmitted + statusCounts.interviewShortlisted + statusCounts.onboarding,
       taskSubmitted: statusCounts.taskSubmitted + statusCounts.interviewShortlisted + statusCounts.onboarding,
       interviewShortlisted: statusCounts.interviewShortlisted + statusCounts.onboarding,
       onboarded: statusCounts.onboarding,
       rejected: statusCounts.rejected,
+      taskAssignmentRate: total > 0 ? (((statusCounts.task_assigned + statusCounts.taskSubmitted + statusCounts.interviewShortlisted + statusCounts.onboarding) / total) * 100).toFixed(1) : 0,
       taskConversionRate: total > 0 ? (((statusCounts.taskSubmitted + statusCounts.interviewShortlisted + statusCounts.onboarding) / total) * 100).toFixed(1) : 0,
       interviewConversionRate: total > 0 ? (((statusCounts.interviewShortlisted + statusCounts.onboarding) / total) * 100).toFixed(1) : 0,
       onboardingRate: total > 0 ? ((statusCounts.onboarding / total) * 100).toFixed(1) : 0,

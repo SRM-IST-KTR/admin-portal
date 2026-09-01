@@ -5,7 +5,7 @@ const RecruitmentStats = ({
   totalApplicants = 0,
   domainCounts = { Technical: 0, Creatives: 0, Corporate: 0 },
   yearCounts = { firstYear: 0, secondYear: 0, thirdYear: 0, other: 0 },
-  statusCounts = { registered: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, rejected: 0 },
+  statusCounts = { registered: 0, task_assigned: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, underReview: 0, rejected: 0 },
   activeDomainFilter,
   onDomainClick,
   activeStatusFilter,

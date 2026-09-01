@@ -40,32 +40,20 @@ const participantSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    // Flexible links object supporting arbitrary domain-specific submission requirements
     links: {
-      github: {
-        type: String,
-        default: null,
-      },
-      demo: {
-        type: String,
-        default: null,
-      },
-      deployment: {
-        type: String,
-        default: null,
-      },
-      resume: {
-        type: String,
-        default: null,
-      },
-      portfolio: {
-        type: String,
-        default: null,
-      },
+      type: mongoose.Schema.Types.Mixed,
+      default: () => ({
+        github: null,
+        demo: null,
+        deployment: null,
+      }),
     },
     status: {
       type: String,
       enum: [
         "registered",
+        "task_assigned",
         "taskSubmitted",
         "interviewShortlisted",
         "interviewShortlist",
@@ -88,6 +76,7 @@ const participantSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    strict: false, // Allows additional domain-specific submission fields dynamically
   }
 );
 
