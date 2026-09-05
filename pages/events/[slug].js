@@ -12,6 +12,7 @@ import QRScannerModal from "@/components/events/QRScannerModal";
 import { Download, Mail, QrCode, Users } from "lucide-react";
 import { API_ENDPOINTS } from "@/utils/config";
 const convertToCSV = (data) => {
+  if (!data || data.length === 0) return "";
   const header = Object.keys(data[0]).join(",") + "\n";
   const rows = data.map((row) =>
     Object.values(row)
@@ -149,7 +150,7 @@ const EventDetails = () => {
   };
 
   const handleSendRsvpEmails = async (participant) => {
-    await axios.post("/api/v1/email/rsvp", { participant, event });
+    await axios.post(API_ENDPOINTS.EVENTS.SEND_RSVP, { participant, event });
   };
 
   const handleFilterChange = (filters) => {

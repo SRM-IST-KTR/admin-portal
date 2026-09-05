@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
         CREATE: `${API_BASE_URL}/api/events`,
         UPDATE: (id) => `${API_BASE_URL}/api/events/${id}`,
         DELETE: (id) => `${API_BASE_URL}/api/events/${id}`,
+        SEND_RSVP: `${API_BASE_URL}/api/events/send-rsvp`,
     },
     RECRUITMENT: {
         GET_ALL: `${API_BASE_URL}/api/recruitment`,

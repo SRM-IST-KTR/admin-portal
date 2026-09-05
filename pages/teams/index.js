@@ -6,9 +6,10 @@ import AddMemberModal from "../../components/teams/AddMemberModal";
 import DeleteConfirmModal from "../../components/teams/DeleteConfirmModal";
 import FilterBar from "../../components/teams/FilterBar";
 import Toast from "../../components/shared/Toast";
+import withAuth from "@/components/withAuth";
 import { API_ENDPOINTS } from "../../utils/config";
 
-export default function Teams() {
+function Teams() {
     const router = useRouter();
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -291,3 +292,5 @@ export default function Teams() {
         </div>
     );
 }
+
+export default withAuth(Teams);
