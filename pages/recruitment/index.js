@@ -7,6 +7,7 @@ import RecruitmentAnalytics from "@/components/recruitments/RecruitmentAnalytics
 import RecruitmentFilters from "@/components/recruitments/RecruitmentFilters";
 import RecruitmentTable from "@/components/recruitments/RecruitmentTable";
 import CandidateModal from "@/components/recruitments/CandidateModal";
+import TaskModal from "@/components/recruitments/TaskModal";
 import BulkActionBar from "@/components/recruitments/BulkActionBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { API_ENDPOINTS } from "@/utils/config";
@@ -17,6 +18,7 @@ import {
   Table as TableIcon,
   Layers,
   FileSpreadsheet,
+  Plus,
 } from "lucide-react";
 
 // CSV Export Utility
@@ -93,6 +95,7 @@ const RecruitmentPage = () => {
   // Selection & Modal States
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
 
   // Toast State
@@ -463,6 +466,16 @@ const RecruitmentPage = () => {
         <div className="flex items-center gap-2">
           <button
             type="button"
+            onClick={() => setIsTaskModalOpen(true)}
+            className="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs flex items-center gap-1.5 transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+            title="Set recruitment task for drive"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Set Drive Task</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => fetchData(true)}
             disabled={refreshing || loading}
             className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
@@ -620,6 +633,15 @@ const RecruitmentPage = () => {
         }}
         onSave={handleSaveCandidate}
         onDelete={handleDeleteCandidate}
+      />
+
+      {/* Task Creation Modal */}
+      <TaskModal
+        isOpen={isTaskModalOpen}
+        onClose={() => setIsTaskModalOpen(false)}
+        onTaskAdded={(newTask) => {
+          showToast(`Successfully added task: "${newTask.title}"`);
+        }}
       />
 
       {/* Floating Bulk Action Bar */}
