@@ -8,6 +8,7 @@ import RecruitmentFilters from "@/components/recruitments/RecruitmentFilters";
 import RecruitmentTable from "@/components/recruitments/RecruitmentTable";
 import CandidateModal from "@/components/recruitments/CandidateModal";
 import TaskModal from "@/components/recruitments/TaskModal";
+import TasksListModal from "@/components/recruitments/TasksListModal";
 import BulkActionBar from "@/components/recruitments/BulkActionBar";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { API_ENDPOINTS } from "@/utils/config";
@@ -19,6 +20,7 @@ import {
   Layers,
   FileSpreadsheet,
   Plus,
+  FileText,
 } from "lucide-react";
 
 // CSV Export Utility
@@ -96,6 +98,7 @@ const RecruitmentPage = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [isTasksListModalOpen, setIsTasksListModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
 
   // Toast State
@@ -476,6 +479,16 @@ const RecruitmentPage = () => {
 
           <button
             type="button"
+            onClick={() => setIsTasksListModalOpen(true)}
+            className="px-3 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs flex items-center gap-1.5 transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+            title="View and export all drive tasks domain-wise"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>View All Drive Tasks</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => fetchData(true)}
             disabled={refreshing || loading}
             className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-50"
@@ -642,6 +655,13 @@ const RecruitmentPage = () => {
         onTaskAdded={(newTask) => {
           showToast(`Successfully added task: "${newTask.title}"`);
         }}
+      />
+
+      {/* Drive Tasks List & Export Modal */}
+      <TasksListModal
+        isOpen={isTasksListModalOpen}
+        onClose={() => setIsTasksListModalOpen(false)}
+        showToast={showToast}
       />
 
       {/* Floating Bulk Action Bar */}
