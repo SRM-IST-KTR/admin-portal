@@ -23,7 +23,9 @@ function SponsorsPage() {
   const fetchSponsors = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(API_ENDPOINTS.SPONSORS.GET_ALL);
+      const res = await axios.get(API_ENDPOINTS.SPONSORS.GET_ALL, {
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+      });
       setSponsors(res.data.data || []);
     } catch (err) {
       console.error("Error fetching sponsors:", err);

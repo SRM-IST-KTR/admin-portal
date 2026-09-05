@@ -39,6 +39,7 @@ function CertificatesPage() {
     try {
       setLoading(true);
       const res = await axios.get(API_ENDPOINTS.CERTIFICATES.GET_ALL, {
+        headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
         params: { limit: 150 },
       });
       const data = res.data.data || [];
