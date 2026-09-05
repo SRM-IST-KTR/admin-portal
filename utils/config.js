@@ -24,6 +24,8 @@ export const API_ENDPOINTS = {
         DELETE: (id) => `${API_BASE_URL}/api/recruitment/${id}`,
         BATCH_UPDATE: `${API_BASE_URL}/api/recruitment/batch`,
         ANALYTICS: `${API_BASE_URL}/api/recruitment/analytics`,
+        TASKS: `${API_BASE_URL}/api/recruitment/tasks`,
+        TASK_BY_ID: (id) => `${API_BASE_URL}/api/recruitment/tasks/${id}`,
     },
     SPONSORS: {
         GET_ALL: `${API_BASE_URL}/api/sponsors`,
