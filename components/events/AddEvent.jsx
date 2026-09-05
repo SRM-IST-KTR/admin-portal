@@ -264,7 +264,7 @@ const AddEvent = ({ onClose }) => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6 text-black">
+        <div className="max-w-4xl mx-auto p-1 text-zinc-900 dark:text-zinc-100">
             <h1 className="text-3xl font-bold text-center mb-8">Add New Event</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -274,13 +274,13 @@ const AddEvent = ({ onClose }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Event Name *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Event Name *</label>
                                 <input
                                     type="text"
                                     name="event_name"
                                     value={formData.event_name}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.event_name ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.event_name ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.event_name && (
@@ -289,13 +289,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Slug *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Slug *</label>
                                 <input
                                     type="text"
                                     name="slug"
                                     value={formData.slug}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.slug ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.slug ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.slug && (
@@ -304,13 +304,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">RSVP Limit *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">RSVP Limit *</label>
                                 <input
                                     type="number"
                                     name="rsvpLimit"
                                     value={formData.rsvpLimit}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.rsvpLimit ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.rsvpLimit ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.rsvpLimit && (
@@ -319,13 +319,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Event Date *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Event Date *</label>
                                 <input
                                     type="datetime-local"
                                     name="event_date"
                                     value={formData.event_date}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.event_date ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.event_date ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.event_date && (
@@ -335,12 +335,12 @@ const AddEvent = ({ onClose }) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium mb-1">Event Description *</label>
+                            <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Event Description *</label>
                             <textarea
                                 name="event_description"
                                 value={formData.event_description}
                                 onChange={handleChange}
-                                className={`w-full p-2 border rounded ${errors.event_description ? 'border-red-500' : ''}`}
+                                className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.event_description ? 'border-red-500' : ''}`}
                                 rows="4"
                                 required
                             />
@@ -357,13 +357,13 @@ const AddEvent = ({ onClose }) => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Venue *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Venue *</label>
                                 <input
                                     type="text"
                                     name="venue"
                                     value={formData.venue}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.venue ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.venue ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.venue && (
@@ -372,13 +372,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Duration (hours) *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Duration (hours) *</label>
                                 <input
                                     type="number"
                                     name="duration"
                                     value={formData.duration}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.duration ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.duration ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.duration && (
@@ -387,13 +387,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Cost</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Cost</label>
                                 <input
                                     type="number"
                                     name="cost"
                                     value={formData.cost}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.cost ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.cost ? 'border-red-500' : ''}`}
                                 />
                                 {errors.cost && (
                                     <p className="text-red-500 text-sm mt-1">{errors.cost}</p>
@@ -402,14 +402,14 @@ const AddEvent = ({ onClose }) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium mb-1">Prerequisites</label>
+                            <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Prerequisites</label>
                             {formData.prerequisites.map((prerequisite, index) => (
                                 <div key={index} className="flex gap-2 mb-2">
                                     <input
                                         type="text"
                                         value={prerequisite}
                                         onChange={(e) => handlePrerequisiteChange(index, e.target.value)}
-                                        className={`w-full p-2 border rounded ${errors[`prerequisites.${index}`] ? 'border-red-500' : ''}`}
+                                        className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors[`prerequisites.${index}`] ? 'border-red-500' : ''}`}
                                     />
                                     {errors[`prerequisites.${index}`] && (
                                         <p className="text-red-500 text-sm mt-1">{errors[`prerequisites.${index}`]}</p>
@@ -433,13 +433,13 @@ const AddEvent = ({ onClose }) => {
 
                         <div className="grid grid-cols-1 gap-4">
                             <div>
-                                <label className="block text-sm font-medium mb-1">Poster URL *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Poster URL *</label>
                                 <input
                                     type="url"
                                     name="poster_url"
                                     value={formData.poster_url}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.poster_url ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.poster_url ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.poster_url && (
@@ -448,13 +448,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Registration URL *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Registration URL *</label>
                                 <input
                                     type="url"
                                     name="registration_url"
                                     value={formData.registration_url}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.registration_url ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.registration_url ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.registration_url && (
@@ -463,13 +463,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Certificate Link *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Certificate Link *</label>
                                 <input
                                     type="url"
                                     name="certificateLink"
                                     value={formData.certificateLink}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.certificateLink ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.certificateLink ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.certificateLink && (
@@ -478,13 +478,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Organizer Certificate URL *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Organizer Certificate URL *</label>
                                 <input
                                     type="url"
                                     name="certificate.organizers"
                                     value={formData.certificate.organizers}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.organizers ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.organizers ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.organizers && (
@@ -493,13 +493,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Participant Certificate URL *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Participant Certificate URL *</label>
                                 <input
                                     type="url"
                                     name="certificate.participants"
                                     value={formData.certificate.participants}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.participants ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.participants ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.participants && (
@@ -508,13 +508,13 @@ const AddEvent = ({ onClose }) => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium mb-1">Volunteer Certificate URL *</label>
+                                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Volunteer Certificate URL *</label>
                                 <input
                                     type="url"
                                     name="certificate.volunteers"
                                     value={formData.certificate.volunteers}
                                     onChange={handleChange}
-                                    className={`w-full p-2 border rounded ${errors.volunteers ? 'border-red-500' : ''}`}
+                                    className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.volunteers ? 'border-red-500' : ''}`}
                                     required
                                 />
                                 {errors.volunteers && (
@@ -536,13 +536,13 @@ const AddEvent = ({ onClose }) => {
 
                                 {formData.teamEvent && (
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">Team Size</label>
+                                        <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Team Size</label>
                                         <input
                                             type="number"
                                             name="teamSize"
                                             value={formData.teamSize}
                                             onChange={handleChange}
-                                            className={`w-full p-2 border rounded ${errors.teamSize ? 'border-red-500' : ''}`}
+                                            className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.teamSize ? 'border-red-500' : ''}`}
                                             min="1"
                                         />
                                         {errors.teamSize && (
@@ -560,13 +560,13 @@ const AddEvent = ({ onClose }) => {
                         <h2 className="text-xl font-semibold mb-4">Database Settings</h2>
 
                         <div>
-                            <label className="block text-sm font-medium mb-1">Database Name *</label>
+                            <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Database Name *</label>
                             <input
                                 type="text"
                                 name="database"
                                 value={formData.database}
                                 onChange={handleChange}
-                                className={`w-full p-2 border rounded ${errors.database ? 'border-red-500' : ''}`}
+                                className={`w-full p-2 text-xs sm:text-sm bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-xl focus:ring-2 focus:ring-blue-500 ${errors.database ? 'border-red-500' : ''}`}
                                 required
                             />
                             {errors.database && (

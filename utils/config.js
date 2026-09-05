@@ -43,9 +43,11 @@ export const API_ENDPOINTS = {
         DELETE: (id) => `${API_BASE_URL}/api/team/${id}`,
     },
     CERTIFICATES: {
+        GET_ALL: `${API_BASE_URL}/api/certificate`,
         GENERATE: `${API_BASE_URL}/api/certificate/generate`,
         VERIFY: (certificateId) => `${API_BASE_URL}/api/certificate/verify/${certificateId}`,
         DOWNLOAD: (certificateId) => `${API_BASE_URL}/api/certificate/download/${certificateId}`,
+        REVOKE: (certificateId) => `${API_BASE_URL}/api/certificate/revoke/${certificateId}`,
     },
 };
 
