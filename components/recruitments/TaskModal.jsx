@@ -1,6 +1,6 @@
 import React, { useState } from "react";
+import { API_ENDPOINTS } from "@/utils/config";
 import {
-  Plus,
   X,
   FileText,
   Calendar,
@@ -85,7 +85,7 @@ const TaskModal = ({ isOpen, onClose, onTaskAdded }) => {
         deadline: formData.deadline ? new Date(formData.deadline).toISOString() : null,
       };
 
-      const res = await fetch("/api/v1/recruitment/tasks", {
+      const res = await fetch(API_ENDPOINTS.RECRUITMENT.TASKS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(cleanPayload),
