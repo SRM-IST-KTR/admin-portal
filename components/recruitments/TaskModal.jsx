@@ -13,11 +13,13 @@ import {
   Tag,
   Cpu,
   Trash2,
+  Target,
 } from "lucide-react";
 
 const TaskModal = ({ isOpen, onClose, onTaskAdded }) => {
   const [formData, setFormData] = useState({
     title: "",
+    goal: "",
     description: "",
     guidelines: "",
     link: "",
@@ -158,6 +160,22 @@ const TaskModal = ({ isOpen, onClose, onTaskAdded }) => {
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="e.g. Company Outreach for Sponsorships"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                  <Target className="w-3.5 h-3.5 text-zinc-400" />
+                  Task Goal <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="goal"
+                  required
+                  value={formData.goal}
+                  onChange={handleChange}
+                  placeholder="e.g. Identify and reach out to potential sponsors for the upcoming tech drive"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
