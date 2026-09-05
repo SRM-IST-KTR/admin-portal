@@ -4,6 +4,7 @@ import DB from "@/utils/db";
 const taskSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true },
+    goal: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     guidelines: { type: String, required: true, trim: true },
     link: { type: String, default: null, trim: true },
@@ -77,6 +78,7 @@ export default async function handler(req, res) {
           const q = search.trim();
           query.$or = [
             { title: new RegExp(q, "i") },
+            { goal: new RegExp(q, "i") },
             { description: new RegExp(q, "i") },
             { taskType: new RegExp(q, "i") },
           ];
@@ -93,6 +95,7 @@ export default async function handler(req, res) {
       case "POST": {
         const {
           title,
+          goal,
           description,
           guidelines,
           link,
@@ -114,6 +117,7 @@ export default async function handler(req, res) {
 
         const missingFields = [];
         if (!title?.trim()) missingFields.push("title");
+        if (!goal?.trim()) missingFields.push("goal");
         if (!description?.trim()) missingFields.push("description");
         if (!guidelines?.trim()) missingFields.push("guidelines");
         if (!domain) missingFields.push("domain");
@@ -161,6 +165,7 @@ export default async function handler(req, res) {
 
         const taskData = {
           title: cleanString(title),
+          goal: cleanString(goal),
           description: cleanString(description),
           guidelines: cleanString(guidelines),
           link: link ? cleanString(link) : null,
