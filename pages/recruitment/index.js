@@ -394,6 +394,39 @@ const RecruitmentPage = () => {
       showToast(err.response?.data?.error || "Failed bulk status update", "error");
     }
   };
+  // Bulk Task Assign and Email Handler
+  const handleBulkTaskAssignAndEmail = async () => {
+    if (selectedIds.length === 0) return;
+
+    const ok = await askConfirm({
+      title: "Assign Tasks & Send Release Mails?",
+      message: `Update ${selectedIds.length} selected candidates to "Task Assigned" and send domain task release emails in bulk?`,
+      confirmText: "Assign & Send Emails",
+    });
+    if (!ok) return;
+
+    try {
+      const response = await axios.post(API_ENDPOINTS.RECRUITMENT.BATCH_UPDATE, {
+        action: "updateStatus",
+        status: "task_assigned",
+        ids: selectedIds,
+        sendEmail: true,
+      });
+
+      if (response.data.success) {
+        setCandidates((prev) =>
+          prev.map((c) => (selectedIds.includes(c._id) ? { ...c, status: "task_assigned" } : c))
+        );
+        const emailsSent = response.data.emailsSent || 0;
+        showToast(`Successfully assigned tasks and sent ${emailsSent} emails!`);
+        setSelectedIds([]);
+      }
+    } catch (err) {
+      console.error("Bulk task assign & email error:", err);
+      showToast(err.response?.data?.error || "Failed to assign tasks and send emails", "error");
+    }
+  };
+
 
   // Bulk Delete Handler (via backend)
   const handleBulkDelete = async () => {
@@ -671,7 +704,9 @@ const RecruitmentPage = () => {
         onBulkStatusChange={handleBulkStatusChange}
         onBulkDelete={handleBulkDelete}
         onExportSelected={handleExportSelected}
+        onBulkTaskAssignAndEmail={handleBulkTaskAssignAndEmail}
       />
+
 
       <ConfirmDialog
         open={Boolean(confirm)}

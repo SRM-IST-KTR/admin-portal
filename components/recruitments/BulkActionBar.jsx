@@ -1,5 +1,5 @@
-import React from "react";
-import { CheckSquare, Download, Trash2, X } from "lucide-react";
+import React, { useState } from "react";
+import { CheckSquare, Download, Trash2, Mail, X } from "lucide-react";
 
 const BulkActionBar = ({
   selectedCount = 0,
@@ -7,6 +7,7 @@ const BulkActionBar = ({
   onBulkStatusChange,
   onBulkDelete,
   onExportSelected,
+  onBulkTaskAssignAndEmail,
 }) => {
   if (selectedCount === 0) return null;
 
@@ -18,7 +19,7 @@ const BulkActionBar = ({
       </div>
 
       {/* Stage actions */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 flex-wrap">
         <span className="text-[11px] text-zinc-400 dark:text-zinc-500 mr-1 hidden sm:inline">Advance:</span>
         <button
           type="button"
@@ -27,6 +28,17 @@ const BulkActionBar = ({
         >
           Assign Task
         </button>
+        {onBulkTaskAssignAndEmail && (
+          <button
+            type="button"
+            onClick={onBulkTaskAssignAndEmail}
+            className="px-2.5 py-1 rounded-lg bg-emerald-700 dark:bg-emerald-600 text-white hover:bg-emerald-600 dark:hover:bg-emerald-500 transition-colors text-[11px] font-semibold flex items-center gap-1 shadow-sm active:scale-[0.98]"
+            title="Update status to Task Assigned & send task release email"
+          >
+            <Mail className="w-3 h-3" />
+            Assign Task & Send Mails
+          </button>
+        )}
         <button
           type="button"
           onClick={() => onBulkStatusChange("taskSubmitted")}
