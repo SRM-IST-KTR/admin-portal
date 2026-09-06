@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, X, RotateCcw } from "lucide-react";
+import { Search, X } from "lucide-react";
 const LINK_FILTER_OPTIONS = {
   Technical: [
     { value: "hasGithub", label: "Has GitHub Repo" },
@@ -114,17 +114,6 @@ const RecruitmentFilters = ({
           <option value="missingAll">Missing Links</option>
         </select>
 
-        {/* Reset Filter Button */}
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={onResetFilters}
-            className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/70 rounded-xl transition-all active:scale-[0.98] cursor-pointer whitespace-nowrap"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>Reset</span>
-          </button>
-        )}
       </div>
 
       {/* Domain Quick Tabs & Row Count */}

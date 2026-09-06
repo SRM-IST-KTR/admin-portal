@@ -261,13 +261,6 @@ const RecruitmentPage = () => {
     });
   }, [candidates, searchQuery, domainFilter, statusFilter, yearFilter, linksFilter]);
 
-  const handleResetFilters = () => {
-    setSearchQuery("");
-    setDomainFilter("all");
-    setStatusFilter("all");
-    setYearFilter("all");
-    setLinksFilter("all");
-  };
   const STATUS_LABELS = {
     registered: "Registered",
     task_assigned: "Task Assigned",
@@ -640,7 +633,6 @@ const RecruitmentPage = () => {
             onYearChange={setYearFilter}
             linksFilter={linksFilter}
             onLinksChange={setLinksFilter}
-            onResetFilters={handleResetFilters}
             totalResults={candidates.length}
             filteredCount={filteredCandidates.length}
             domainCounts={domainCounts}
