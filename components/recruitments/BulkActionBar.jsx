@@ -8,6 +8,7 @@ const BulkActionBar = ({
   onBulkDelete,
   onExportSelected,
   onBulkTaskAssignAndEmail,
+  onBulkSendTasksLiveEmail,
 }) => {
   if (selectedCount === 0) return null;
 
@@ -37,6 +38,17 @@ const BulkActionBar = ({
           >
             <Mail className="w-3 h-3" />
             Assign Task & Send Mails
+          </button>
+        )}
+        {onBulkSendTasksLiveEmail && (
+          <button
+            type="button"
+            onClick={onBulkSendTasksLiveEmail}
+            className="px-2.5 py-1 rounded-lg bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors text-[11px] font-semibold flex items-center gap-1 shadow-sm active:scale-[0.98]"
+            title="Send 'Tasks Are Live' email (Deadline: 12 Sept, 23:59 PM IST) to selected candidates without changing status"
+          >
+            <Mail className="w-3 h-3" />
+            Tasks Are Live (12 Sept, 23:59 IST)
           </button>
         )}
         <button
