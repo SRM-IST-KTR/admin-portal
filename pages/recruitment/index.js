@@ -423,7 +423,7 @@ const RecruitmentPage = () => {
 
     const ok = await askConfirm({
       title: "Send 'Tasks Are Live' Emails?",
-      message: `Send task release email (Deadline: 12 Sept, 23:59 PM IST) to ${selectedIds.length} selected candidates without modifying their status?`,
+      message: `Send task release email (Deadline: 12 September 2026, 23:59 PM IST) to ${selectedIds.length} selected candidates without modifying their status?`,
       confirmText: "Send Emails",
     });
     if (!ok) return;
