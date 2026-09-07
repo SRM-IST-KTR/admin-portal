@@ -434,10 +434,12 @@ const RecruitmentPage = () => {
         ids: selectedIds,
       });
 
-      if (response.data.success) {
-        const emailsSent = response.data.emailsSent || 0;
+      if (response?.data?.success || response?.status === 200) {
+        const emailsSent = response?.data?.emailsSent || selectedIds.length;
         showToast(`Successfully sent ${emailsSent} task release emails!`);
         setSelectedIds([]);
+      } else {
+        showToast(response?.data?.error || "Failed to send task release emails", "error");
       }
     } catch (err) {
       console.error("Bulk send tasks live email error:", err);
