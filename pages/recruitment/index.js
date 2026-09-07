@@ -387,7 +387,6 @@ const RecruitmentPage = () => {
       showToast(err.response?.data?.error || "Failed bulk status update", "error");
     }
   };
-  // Bulk Task Assign and Email Handler
   const handleBulkTaskAssignAndEmail = async () => {
     if (selectedIds.length === 0) return;
 
@@ -417,6 +416,32 @@ const RecruitmentPage = () => {
     } catch (err) {
       console.error("Bulk task assign & email error:", err);
       showToast(err.response?.data?.error || "Failed to assign tasks and send emails", "error");
+    }
+  };
+  const handleBulkSendTasksLiveEmail = async () => {
+    if (selectedIds.length === 0) return;
+
+    const ok = await askConfirm({
+      title: "Send 'Tasks Are Live' Emails?",
+      message: `Send task release email (Deadline: 12 Sept, 23:59 PM IST) to ${selectedIds.length} selected candidates without modifying their status?`,
+      confirmText: "Send Emails",
+    });
+    if (!ok) return;
+
+    try {
+      const response = await axios.post(API_ENDPOINTS.RECRUITMENT.BATCH_UPDATE, {
+        action: "sendTaskEmailOnly",
+        ids: selectedIds,
+      });
+
+      if (response.data.success) {
+        const emailsSent = response.data.emailsSent || 0;
+        showToast(`Successfully sent ${emailsSent} task release emails!`);
+        setSelectedIds([]);
+      }
+    } catch (err) {
+      console.error("Bulk send tasks live email error:", err);
+      showToast(err.response?.data?.error || "Failed to send task release emails", "error");
     }
   };
 
@@ -697,6 +722,7 @@ const RecruitmentPage = () => {
         onBulkDelete={handleBulkDelete}
         onExportSelected={handleExportSelected}
         onBulkTaskAssignAndEmail={handleBulkTaskAssignAndEmail}
+        onBulkSendTasksLiveEmail={handleBulkSendTasksLiveEmail}
       />
 
 
