@@ -27,6 +27,7 @@ export const API_ENDPOINTS = {
         ANALYTICS: `${API_BASE_URL}/api/recruitment/analytics`,
         TASKS: `${API_BASE_URL}/api/recruitment/tasks`,
         TASK_BY_ID: (id) => `${API_BASE_URL}/api/recruitment/tasks/${id}`,
+        SEND_TASK_REMINDER: `${API_BASE_URL}/api/recruitment/send-task-reminder`,
     },
     SPONSORS: {
         GET_ALL: `${API_BASE_URL}/api/sponsors`,

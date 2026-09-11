@@ -448,6 +448,40 @@ const RecruitmentPage = () => {
   };
 
 
+  const handleBulkSendTaskReminder = async () => {
+    if (selectedIds.length === 0) return;
+
+    const ok = await askConfirm({
+      title: "Send Task Submission Reminders?",
+      message: `Send a task submission reminder email to ${selectedIds.length} selected candidates without modifying their status?`,
+      confirmText: "Send Reminders",
+    });
+    if (!ok) return;
+
+    try {
+      const response = await axios.post(API_ENDPOINTS.RECRUITMENT.SEND_TASK_REMINDER, {
+        ids: selectedIds,
+      });
+
+      if (response?.data?.success || response?.status === 200) {
+        const emailsSent = response?.data?.emailsSent || selectedIds.length;
+        const emailErrors = response?.data?.emailErrors || 0;
+        if (emailErrors > 0) {
+          showToast(`Sent ${emailsSent} reminder emails (${emailErrors} failed)`, "info");
+        } else {
+          showToast(`Successfully sent ${emailsSent} task submission reminder emails!`);
+        }
+        setSelectedIds([]);
+      } else {
+        showToast(response?.data?.error || "Failed to send task reminder emails", "error");
+      }
+    } catch (err) {
+      console.error("Bulk send task reminder email error:", err);
+      showToast(err.response?.data?.error || "Failed to send task reminder emails", "error");
+    }
+  };
+
+
   // Bulk Delete Handler (via backend)
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
@@ -725,6 +759,7 @@ const RecruitmentPage = () => {
         onExportSelected={handleExportSelected}
         onBulkTaskAssignAndEmail={handleBulkTaskAssignAndEmail}
         onBulkSendTasksLiveEmail={handleBulkSendTasksLiveEmail}
+        onBulkSendTaskReminder={handleBulkSendTaskReminder}
       />
 
 
