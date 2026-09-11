@@ -9,6 +9,7 @@ const BulkActionBar = ({
   onExportSelected,
   onBulkTaskAssignAndEmail,
   onBulkSendTasksLiveEmail,
+  onBulkSendTaskReminder,
 }) => {
   if (selectedCount === 0) return null;
 
@@ -72,6 +73,17 @@ const BulkActionBar = ({
         >
           Onboard
         </button>
+        {onBulkSendTaskReminder && (
+          <button
+            type="button"
+            onClick={onBulkSendTaskReminder}
+            className="px-2.5 py-1 rounded-lg bg-amber-600 dark:bg-amber-500 text-white hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors text-[11px] font-semibold flex items-center gap-1 shadow-sm active:scale-[0.98]"
+            title="Send task submission reminder email to selected candidates without changing status"
+          >
+            <Mail className="w-3 h-3" />
+            Send Reminder
+          </button>
+        )}
         <button
           type="button"
           onClick={() => onBulkStatusChange("rejected")}
