@@ -12,6 +12,7 @@ import CandidateModal from "@/components/recruitments/CandidateModal";
 import TaskModal from "@/components/recruitments/TaskModal";
 import TasksListModal from "@/components/recruitments/TasksListModal";
 import BulkActionBar from "@/components/recruitments/BulkActionBar";
+import WhatsappInviteModal from "@/components/recruitments/WhatsappInviteModal";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { API_ENDPOINTS } from "@/utils/config";
 import {
@@ -25,7 +26,7 @@ import {
   FileText,
 } from "lucide-react";
 
-const WHATSAPP_INVITE_SUBJECT = "WhatsApp Recruits Invite";
+const WHATSAPP_INVITE_SUBJECT = "Congratulations, Join The WhatsApp group ASAP";
 
 // CSV Export Utility
 const exportToCSV = (data, filename = "recruitment26_data.csv") => {
@@ -105,6 +106,7 @@ const RecruitmentPage = ({ inviteHtml }) => {
   const [isTasksListModalOpen, setIsTasksListModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [isSendingWhatsappInvite, setIsSendingWhatsappInvite] = useState(false);
+  const [isWhatsappInviteModalOpen, setIsWhatsappInviteModalOpen] = useState(false);
 
   // Toast State
   const [toast, setToast] = useState({ show: false, message: "", type: "success" });
@@ -486,7 +488,12 @@ const RecruitmentPage = ({ inviteHtml }) => {
     }
   };
 
-  const handleBulkSendWhatsappInvite = async () => {
+  const openWhatsappInviteComposer = () => {
+    if (selectedIds.length === 0 || isSendingWhatsappInvite) return;
+    setIsWhatsappInviteModalOpen(true);
+  };
+
+  const handleBulkSendWhatsappInvite = async ({ subject, html }) => {
     if (selectedIds.length === 0 || isSendingWhatsappInvite) return;
 
     const selectedCandidates = candidates.filter((candidate) => selectedIds.includes(candidate._id));
@@ -505,7 +512,7 @@ const RecruitmentPage = ({ inviteHtml }) => {
 
     const ok = await askConfirm({
       title: "Send WhatsApp Invites?",
-      message: `Send the WhatsApp recruitment invite to ${emails.length} selected email${emails.length === 1 ? "" : "s"}?`,
+      message: `Send “${subject}” to ${emails.length} selected email${emails.length === 1 ? "" : "s"}?`,
       confirmText: "Send Invites",
     });
     if (!ok) return;
@@ -514,13 +521,14 @@ const RecruitmentPage = ({ inviteHtml }) => {
     try {
       const response = await axios.post(API_ENDPOINTS.EMAIL.SEND, {
         bcc: emails,
-        subject: WHATSAPP_INVITE_SUBJECT,
-        html: inviteHtml,
+        subject,
+        html,
       });
 
       if (response.data.success) {
         showToast(`WhatsApp invite sent to ${emails.length} candidates.`);
         setSelectedIds([]);
+        setIsWhatsappInviteModalOpen(false);
       } else {
         showToast(response.data.error || "Failed to send WhatsApp invites", "error");
       }
@@ -811,8 +819,20 @@ const RecruitmentPage = ({ inviteHtml }) => {
         onBulkTaskAssignAndEmail={handleBulkTaskAssignAndEmail}
         onBulkSendTasksLiveEmail={handleBulkSendTasksLiveEmail}
         onBulkSendTaskReminder={handleBulkSendTaskReminder}
-        onBulkSendWhatsappInvite={handleBulkSendWhatsappInvite}
+        onBulkSendWhatsappInvite={openWhatsappInviteComposer}
         isSendingWhatsappInvite={isSendingWhatsappInvite}
+      />
+
+      <WhatsappInviteModal
+        isOpen={isWhatsappInviteModalOpen}
+        initialSubject={WHATSAPP_INVITE_SUBJECT}
+        initialHtml={inviteHtml}
+        selectedCount={selectedIds.length}
+        isSending={isSendingWhatsappInvite}
+        onClose={() => {
+          if (!isSendingWhatsappInvite) setIsWhatsappInviteModalOpen(false);
+        }}
+        onSend={handleBulkSendWhatsappInvite}
       />
 
 
