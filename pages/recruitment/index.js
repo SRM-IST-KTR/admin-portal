@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
+import fs from "fs";
+import path from "path";
 import withAuth from "@/components/withAuth";
 import Toast from "@/components/shared/Toast";
 import RecruitmentStats from "@/components/recruitments/RecruitmentStats";
@@ -22,6 +24,8 @@ import {
   Plus,
   FileText,
 } from "lucide-react";
+
+const WHATSAPP_INVITE_SUBJECT = "WhatsApp Recruits Invite";
 
 // CSV Export Utility
 const exportToCSV = (data, filename = "recruitment26_data.csv") => {
@@ -80,7 +84,7 @@ const exportToCSV = (data, filename = "recruitment26_data.csv") => {
   document.body.removeChild(link);
 };
 
-const RecruitmentPage = () => {
+const RecruitmentPage = ({ inviteHtml }) => {
   // Primary Data State
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,6 +104,7 @@ const RecruitmentPage = () => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isTasksListModalOpen, setIsTasksListModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [isSendingWhatsappInvite, setIsSendingWhatsappInvite] = useState(false);
 
   // Toast State
   const [toast, setToast] = useState({ show: false, message: "", type: "success" });
@@ -481,6 +486,52 @@ const RecruitmentPage = () => {
     }
   };
 
+  const handleBulkSendWhatsappInvite = async () => {
+    if (selectedIds.length === 0 || isSendingWhatsappInvite) return;
+
+    const selectedCandidates = candidates.filter((candidate) => selectedIds.includes(candidate._id));
+    const emails = Array.from(
+      new Set(
+        selectedCandidates
+          .map((candidate) => String(candidate.email || "").trim().toLowerCase())
+          .filter((email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      )
+    );
+
+    if (emails.length === 0) {
+      showToast("The selected candidates do not have valid email addresses.", "error");
+      return;
+    }
+
+    const ok = await askConfirm({
+      title: "Send WhatsApp Invites?",
+      message: `Send the WhatsApp recruitment invite to ${emails.length} selected email${emails.length === 1 ? "" : "s"}?`,
+      confirmText: "Send Invites",
+    });
+    if (!ok) return;
+
+    setIsSendingWhatsappInvite(true);
+    try {
+      const response = await axios.post(API_ENDPOINTS.EMAIL.SEND, {
+        bcc: emails,
+        subject: WHATSAPP_INVITE_SUBJECT,
+        html: inviteHtml,
+      });
+
+      if (response.data.success) {
+        showToast(`WhatsApp invite sent to ${emails.length} candidates.`);
+        setSelectedIds([]);
+      } else {
+        showToast(response.data.error || "Failed to send WhatsApp invites", "error");
+      }
+    } catch (err) {
+      console.error("Bulk WhatsApp invite error:", err);
+      showToast(err.response?.data?.error || "Failed to send WhatsApp invites", "error");
+    } finally {
+      setIsSendingWhatsappInvite(false);
+    }
+  };
+
 
   // Bulk Delete Handler (via backend)
   const handleBulkDelete = async () => {
@@ -760,6 +811,8 @@ const RecruitmentPage = () => {
         onBulkTaskAssignAndEmail={handleBulkTaskAssignAndEmail}
         onBulkSendTasksLiveEmail={handleBulkSendTasksLiveEmail}
         onBulkSendTaskReminder={handleBulkSendTaskReminder}
+        onBulkSendWhatsappInvite={handleBulkSendWhatsappInvite}
+        isSendingWhatsappInvite={isSendingWhatsappInvite}
       />
 
 
@@ -776,5 +829,10 @@ const RecruitmentPage = () => {
     </div>
   );
 };
+
+export async function getStaticProps() {
+  const inviteHtml = fs.readFileSync(path.join(process.cwd(), "whatsapp-invite.html"), "utf8");
+  return { props: { inviteHtml } };
+}
 
 export default withAuth(RecruitmentPage);

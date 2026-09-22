@@ -4,6 +4,9 @@ export const API_ENDPOINTS = {
     CONTACT: {
         SEND_MESSAGE: `${API_BASE_URL}/api/contact`,
     },
+    EMAIL: {
+        SEND: `${API_BASE_URL}/api/email/send`,
+    },
     EVENTS: {
         GET_ALL: `${API_BASE_URL}/api/events`,
         GET_BY_ID: (id) => `${API_BASE_URL}/api/events/${id}`,

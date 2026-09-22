@@ -10,6 +10,8 @@ const BulkActionBar = ({
   onBulkTaskAssignAndEmail,
   onBulkSendTasksLiveEmail,
   onBulkSendTaskReminder,
+  onBulkSendWhatsappInvite,
+  isSendingWhatsappInvite = false,
 }) => {
   if (selectedCount === 0) return null;
 
@@ -82,6 +84,18 @@ const BulkActionBar = ({
           >
             <Mail className="w-3 h-3" />
             Send Reminder
+          </button>
+        )}
+        {onBulkSendWhatsappInvite && (
+          <button
+            type="button"
+            onClick={onBulkSendWhatsappInvite}
+            disabled={isSendingWhatsappInvite}
+            className="px-2.5 py-1 rounded-lg bg-green-600 dark:bg-green-500 text-white hover:bg-green-700 dark:hover:bg-green-600 transition-colors text-[11px] font-semibold flex items-center gap-1 shadow-sm active:scale-[0.98] disabled:opacity-60 disabled:cursor-wait"
+            title="Send the WhatsApp invite to selected candidates"
+          >
+            <Mail className="w-3 h-3" />
+            {isSendingWhatsappInvite ? "Sending Invite..." : "WhatsApp Invite"}
           </button>
         )}
         <button
