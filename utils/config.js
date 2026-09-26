@@ -45,6 +45,7 @@ export const API_ENDPOINTS = {
     TEAM: {
         GET_ALL: `${PROXY}/team`,
         GET_BY_ID: (id) => `${PROXY}/team/${id}`,
+        GET_ONBOARDING_BY_EMAIL: (email) => `${PROXY}/team/by-email/${encodeURIComponent(email)}`,
         CREATE: `${PROXY}/team`,
         UPDATE: (id) => `${PROXY}/team/${id}`,
         DELETE: (id) => `${PROXY}/team/${id}`,
