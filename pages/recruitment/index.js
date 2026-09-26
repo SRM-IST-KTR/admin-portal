@@ -189,7 +189,6 @@ const RecruitmentPage = ({ inviteHtml }) => {
       }
 
       let s = item.status || "registered";
-      if (s === "interviewShortlist") s = "interviewShortlisted";
       if (sCounts[s] !== undefined) sCounts[s]++;
 
       if (ydMatrix[d] && (yKey === "firstYear" || yKey === "secondYear")) {
@@ -230,7 +229,6 @@ const RecruitmentPage = ({ inviteHtml }) => {
 
       if (statusFilter !== "all") {
         let candidateStatus = item.status || "registered";
-        if (candidateStatus === "interviewShortlist") candidateStatus = "interviewShortlisted";
         if (statusFilter === "selected") {
           if (!["selected", "onboarding", "onboarded"].includes(candidateStatus)) {
             return false;

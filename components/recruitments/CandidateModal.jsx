@@ -85,7 +85,7 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
         year: candidate.year || "",
         domain: candidate.domain || "Technical",
         degreeWithBranch: candidate.degreeWithBranch || "",
-        status: candidate.status === "interviewShortlist" ? "interviewShortlisted" : candidate.status || "registered",
+        status: candidate.status || "registered",
         links: {
           github: candidate.links?.github || "",
           demo: candidate.links?.demo || "",

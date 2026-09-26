@@ -222,7 +222,7 @@ const RecruitmentAnalytics = ({
           totalApplicants,
           statusCounts.task_assigned || 0,
           statusCounts.taskSubmitted || 0,
-          (statusCounts.interviewShortlisted || 0) + (statusCounts.interviewShortlist || 0),
+          (statusCounts.interviewShortlisted || 0),
           statusCounts.selected || 0,
           statusCounts.onboarding || 0,
           statusCounts.onboarded || 0,
@@ -414,7 +414,7 @@ const RecruitmentAnalytics = ({
             <div>
               <span className="text-[10px] text-zinc-400 block font-sans">Interview</span>
               <strong className="text-indigo-600 dark:text-indigo-400">
-                {(statusCounts.interviewShortlisted || 0) + (statusCounts.interviewShortlist || 0)}
+                {(statusCounts.interviewShortlisted || 0)}
               </strong>
             </div>
             <div>
