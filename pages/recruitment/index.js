@@ -9,6 +9,7 @@ import RecruitmentAnalytics from "@/components/recruitments/RecruitmentAnalytics
 import RecruitmentFilters from "@/components/recruitments/RecruitmentFilters";
 import RecruitmentTable from "@/components/recruitments/RecruitmentTable";
 import CandidateModal from "@/components/recruitments/CandidateModal";
+import OnboardingSubmissionModal from "@/components/recruitments/OnboardingSubmissionModal";
 import TaskModal from "@/components/recruitments/TaskModal";
 import TasksListModal from "@/components/recruitments/TasksListModal";
 import BulkActionBar from "@/components/recruitments/BulkActionBar";
@@ -782,7 +783,6 @@ const RecruitmentPage = ({ inviteHtml }) => {
               onViewSubmission={(candidate) => {
                 setSelectedCandidate(candidate);
                 setViewSubmissionOpen(true);
-                setIsDetailModalOpen(true);
               }}
               onStatusChange={handleStatusChange}
               onDeleteCandidate={handleDeleteCandidate}
@@ -800,12 +800,25 @@ const RecruitmentPage = ({ inviteHtml }) => {
         isOpen={isDetailModalOpen}
         onClose={() => {
           setIsDetailModalOpen(false);
-          setViewSubmissionOpen(false);
           setSelectedCandidate(null);
         }}
         onSave={handleSaveCandidate}
         onDelete={handleDeleteCandidate}
-        autoOpenSubmissionDetails={viewSubmissionOpen}
+        onViewSubmission={(candidate) => {
+          setSelectedCandidate(candidate);
+          setIsDetailModalOpen(false);
+          setViewSubmissionOpen(true);
+        }}
+      />
+
+      {/* Onboarding Submission Details Modal (standalone, no CandidateModal behind) */}
+      <OnboardingSubmissionModal
+        candidate={selectedCandidate}
+        isOpen={viewSubmissionOpen}
+        onClose={() => {
+          setViewSubmissionOpen(false);
+          setSelectedCandidate(null);
+        }}
       />
 
       {/* Task Creation Modal */}
