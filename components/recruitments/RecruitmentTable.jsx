@@ -28,7 +28,6 @@ const getStatusBadge = (status) => {
     case "taskSubmitted":
       return "bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800";
     case "interviewShortlisted":
-    case "interviewShortlist":
       return "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800";
     case "selected":
       return "bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800";
@@ -287,10 +286,9 @@ const RecruitmentTable = ({
                     {/* Stage Status Inline Switcher */}
                     <td className="py-3 px-3.5">
                       <select
-                        value={candidate.status === "interviewShortlist" ? "interviewShortlisted" : candidate.status || "registered"}
+                        value={candidate.status || "registered"}
                         onChange={(e) => onStatusChange(candidate._id, e.target.value)}
-                        className={`text-[11px] font-medium rounded-lg px-2 py-1 border cursor-pointer focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100 transition-all ${getStatusBadge(candidate.status)}`}
-                      >
+                        className={`text-[11px] font-medium rounded-lg px-2 py-1 border cursor-pointer focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100 transition-all ${getStatusBadge(candidate.status)}`}>
                         <option value="registered">Registered</option>
                         <option value="task_assigned">Task Assigned</option>
                         <option value="taskSubmitted">Task Submitted</option>

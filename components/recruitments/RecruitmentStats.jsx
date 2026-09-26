@@ -12,7 +12,7 @@ const RecruitmentStats = ({
   onStatusClick,
 }) => {
   const taskSubmissions = statusCounts.taskSubmitted || 0;
-  const interviewShortlisted = (statusCounts.interviewShortlisted || 0) + (statusCounts.interviewShortlist || 0);
+  const interviewShortlisted = (statusCounts.interviewShortlisted || 0);
   const onboarded = (statusCounts.selected || 0) + (statusCounts.onboarding || 0) + (statusCounts.onboarded || 0);
 
   const taskRate = totalApplicants > 0 ? ((taskSubmissions / totalApplicants) * 100).toFixed(1) : "0.0";
