@@ -102,6 +102,7 @@ const RecruitmentPage = ({ inviteHtml }) => {
   // Selection & Modal States
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [viewSubmissionOpen, setViewSubmissionOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isTasksListModalOpen, setIsTasksListModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -775,10 +776,12 @@ const RecruitmentPage = ({ inviteHtml }) => {
               candidates={filteredCandidates}
               onCandidateClick={(candidate) => {
                 setSelectedCandidate(candidate);
+                setViewSubmissionOpen(false);
                 setIsDetailModalOpen(true);
               }}
               onViewSubmission={(candidate) => {
                 setSelectedCandidate(candidate);
+                setViewSubmissionOpen(true);
                 setIsDetailModalOpen(true);
               }}
               onStatusChange={handleStatusChange}
@@ -797,10 +800,12 @@ const RecruitmentPage = ({ inviteHtml }) => {
         isOpen={isDetailModalOpen}
         onClose={() => {
           setIsDetailModalOpen(false);
+          setViewSubmissionOpen(false);
           setSelectedCandidate(null);
         }}
         onSave={handleSaveCandidate}
         onDelete={handleDeleteCandidate}
+        autoOpenSubmissionDetails={viewSubmissionOpen}
       />
 
       {/* Task Creation Modal */}

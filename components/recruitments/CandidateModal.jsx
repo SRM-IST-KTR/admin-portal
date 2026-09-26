@@ -52,7 +52,7 @@ const DOMAIN_SUBMISSION_FIELDS = {
   ],
 };
 
-const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
+const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete, autoOpenSubmissionDetails }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -134,6 +134,14 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
       setIsFetchingOnboarding(false);
     }
   };
+
+  // Auto-open the submission details modal when triggered externally
+  // (e.g. clicking the eye button directly in the table)
+  useEffect(() => {
+    if (autoOpenSubmissionDetails && onboardingData && !isFetchingOnboarding) {
+      setShowSubmissionDetails(true);
+    }
+  }, [autoOpenSubmissionDetails, onboardingData, isFetchingOnboarding]);
 
   if (!isOpen || !candidate) return null;
 
