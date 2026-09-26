@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   X,
   User,
@@ -14,8 +15,12 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
+  Eye,
+  Download,
+  FileSymlink,
 } from "lucide-react";
 import { Figma, Palette, File, FileText, Video } from "lucide-react";
+import { API_ENDPOINTS } from "@/utils/config";
 
 const normalizeDomain = (domain) => {
   const d = String(domain || "");
@@ -75,6 +80,11 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formError, setFormError] = useState("");
 
+  // Onboarding data (from teams_new collection)
+  const [onboardingData, setOnboardingData] = useState(null);
+  const [isFetchingOnboarding, setIsFetchingOnboarding] = useState(false);
+  const [showSubmissionDetails, setShowSubmissionDetails] = useState(false);
+
   useEffect(() => {
     if (candidate) {
       setFormData({
@@ -100,8 +110,30 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
       });
       setShowDeleteConfirm(false);
       setFormError("");
+
+      // Fetch onboarding data when candidate is in onboarding/onboarded stage
+      const status = candidate.status || "registered";
+      if (status === "onboarding" || status === "onboarded") {
+        fetchOnboardingData(candidate.email);
+      } else {
+        setOnboardingData(null);
+      }
     }
   }, [candidate]);
+
+  // Fetch onboarding data from teams_new via email
+  const fetchOnboardingData = async (email) => {
+    if (!email) return;
+    setIsFetchingOnboarding(true);
+    try {
+      const response = await axios.get(API_ENDPOINTS.TEAM.GET_ONBOARDING_BY_EMAIL(email));
+      setOnboardingData(response.data.data || null);
+    } catch (err) {
+      setOnboardingData(null);
+    } finally {
+      setIsFetchingOnboarding(false);
+    }
+  };
 
   if (!isOpen || !candidate) return null;
 
@@ -148,6 +180,7 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
   };
 
   return (
+    <>
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto border border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col my-8">
         {/* Header */}
@@ -367,37 +400,99 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
             </div>
           </div>
 
-          {/* Submission Links */}
-          <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
-            <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">
-              Submission Links — {formData.domain}
-            </span>
+          {/* Submission Links OR Onboarding Documents */}
+          {formData.status === "onboarding" || formData.status === "onboarded" ? (
+            /* Onboarding Documents — PFP + NDA from teams_new */
+            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
+                  Onboarding Documents
+                </span>
+                {onboardingData && (
+                  <button
+                    type="button"
+                    onClick={() => setShowSubmissionDetails(true)}
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>View Submission</span>
+                  </button>
+                )}
+              </div>
 
-            {(DOMAIN_SUBMISSION_FIELDS[normalizeDomain(formData.domain)] || DOMAIN_SUBMISSION_FIELDS.fallback).map(
-              ({ key, icon: Icon, placeholder, bg, color }) => (
-                <div className="flex items-center gap-2" key={key}>
-                  <input
-                    type="url"
-                    value={formData.links[key] || ""}
-                    onChange={(e) => handleLinkChange(key, e.target.value)}
-                    placeholder={placeholder}
-                    className="flex-1 px-2.5 py-1.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-                  />
-                  {formData.links[key] && (
+              {isFetchingOnboarding ? (
+                <div className="flex items-center gap-2 py-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-500" />
+                  <span className="text-xs text-zinc-500">Loading onboarding data...</span>
+                </div>
+              ) : onboardingData ? (
+                <div className="flex flex-col gap-2">
+                  {onboardingData.pictureUrl && (
                     <a
-                      href={formData.links[key]}
+                      href={onboardingData.pictureUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className={`p-1.5 ${bg} rounded-lg transition-colors`}
-                      title={`Open ${key}`}
+                      className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 hover:underline"
                     >
-                      <Icon className={`w-3.5 h-3.5 ${color}`} />
+                      <User className="w-3.5 h-3.5" />
+                      <span>Profile Picture</span>
+                      <ExternalLink className="w-3 h-3 ml-auto" />
                     </a>
                   )}
+                  {onboardingData.ndaUrl && (
+                    <a
+                      href={onboardingData.ndaUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      download
+                      className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 hover:underline"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Signed NDA</span>
+                      <ExternalLink className="w-3 h-3 ml-auto" />
+                    </a>
+                  )}
+                  {!onboardingData.pictureUrl && !onboardingData.ndaUrl && (
+                    <p className="text-xs text-zinc-500">No onboarding documents found.</p>
+                  )}
                 </div>
-              )
-            )}
-          </div>
+              ) : (
+                <p className="text-xs text-zinc-500">No onboarding data available yet.</p>
+              )}
+            </div>
+          ) : (
+            /* Task Submission Links (pre-onboarding) */
+            <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">
+                Submission Links — {formData.domain}
+              </span>
+
+              {(DOMAIN_SUBMISSION_FIELDS[normalizeDomain(formData.domain)] || DOMAIN_SUBMISSION_FIELDS.fallback).map(
+                ({ key, icon: Icon, placeholder, bg, color }) => (
+                  <div className="flex items-center gap-2" key={key}>
+                    <input
+                      type="url"
+                      value={formData.links[key] || ""}
+                      onChange={(e) => handleLinkChange(key, e.target.value)}
+                      placeholder={placeholder}
+                      className="flex-1 px-2.5 py-1.5 bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
+                    />
+                    {formData.links[key] && (
+                      <a
+                        href={formData.links[key]}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`p-1.5 ${bg} rounded-lg transition-colors`}
+                        title={`Open ${key}`}
+                      >
+                        <Icon className={`w-3.5 h-3.5 ${color}`} />
+                      </a>
+                    )}
+                  </div>
+                )
+              )}
+            </div>
+          )}
 
           {/* Evaluator Notes */}
           <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
@@ -466,6 +561,201 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
         </form>
       </div>
     </div>
+
+    {/* View Submission Details Modal */}
+    {showSubmissionDetails && onboardingData && (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[60] flex items-center justify-center p-4 overflow-y-auto">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-zinc-200 dark:border-zinc-800 shadow-2xl">
+          {/* Header */}
+          <div className="p-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+            <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+              Onboarding Submission — {onboardingData.name || "Candidate"}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setShowSubmissionDetails(false)}
+              className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Body */}
+          <div className="p-5 space-y-4 text-xs">
+            {/* Personal Info */}
+            <div>
+              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-2">
+                Personal Information
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Name:</span>
+                  <span className="text-zinc-900 dark:text-zinc-100 ml-1">{onboardingData.name || "—"}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Email:</span>
+                  <span className="text-zinc-900 dark:text-zinc-100 ml-1">{onboardingData.email || "—"}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Phone:</span>
+                  <span className="text-zinc-900 dark:text-zinc-100 ml-1">{onboardingData.phoneno || "—"}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Section:</span>
+                  <span className="text-zinc-900 dark:text-zinc-100 ml-1">{onboardingData.section || "—"}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Domain:</span>
+                  <span className="text-zinc-900 dark:text-zinc-100 ml-1">{onboardingData.domain || "—"}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Subdomain:</span>
+                  <span className="text-zinc-900 dark:text-zinc-100 ml-1">{onboardingData.subdomain || "—"}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Position:</span>
+                  <span className="text-zinc-900 dark:text-zinc-100 ml-1">{onboardingData.position || "—"}</span>
+                </div>
+                <div>
+                  <span className="font-medium text-zinc-600 dark:text-zinc-400">Joined Year:</span>
+                  <span className="text-zinc-900 dark:text-zinc-100 ml-1">{onboardingData.joined_yr || "—"}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Caption */}
+            {onboardingData.caption && (
+              <div>
+                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-2">
+                  Caption
+                </span>
+                <p className="text-zinc-900 dark:text-zinc-100">{onboardingData.caption}</p>
+              </div>
+            )}
+
+            {/* Socials */}
+            {onboardingData.socials && onboardingData.socials.length > 0 && (
+              <div>
+                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-2">
+                  Socials
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {onboardingData.socials.map((s, i) => (
+                    <div key={i}>
+                      {s?.github && (
+                        <div>
+                          <span className="font-medium text-zinc-600 dark:text-zinc-400">GitHub:</span>
+                          <a href={s.github} target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
+                            {s.github}
+                          </a>
+                        </div>
+                      )}
+                      {s?.linkedin && (
+                        <div>
+                          <span className="font-medium text-zinc-600 dark:text-zinc-400">LinkedIn:</span>
+                          <a href={s.linkedin} target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
+                            {s.linkedin}
+                          </a>
+                        </div>
+                      )}
+                      {s?.insta && (
+                        <div>
+                          <span className="font-medium text-zinc-600 dark:text-zinc-400">Instagram:</span>
+                          <a href={s.insta} target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
+                            {s.insta}
+                          </a>
+                        </div>
+                      )}
+                      {s?.portfolio && (
+                        <div>
+                          <span className="font-medium text-zinc-600 dark:text-zinc-400">Portfolio:</span>
+                          <a href={s.portfolio} target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline ml-1">
+                            {s.portfolio}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Family Details */}
+            {onboardingData.faDetails && onboardingData.faDetails.length > 0 && (
+              <div>
+                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-2">
+                  Family / Guardian Details
+                </span>
+                <div className="space-y-2">
+                  {onboardingData.faDetails.map((fa, i) => (
+                    <div key={i} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <span className="font-medium text-zinc-600 dark:text-zinc-400">Name:</span>
+                        <span className="text-zinc-900 dark:text-zinc-100 ml-1">{fa.faname || "—"}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-zinc-600 dark:text-zinc-400">Phone:</span>
+                        <span className="text-zinc-900 dark:text-zinc-100 ml-1">{fa.faphonenumber || "—"}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-zinc-600 dark:text-zinc-400">Email:</span>
+                        <span className="text-zinc-900 dark:text-zinc-100 ml-1">{fa.faemailid || "—"}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Documents */}
+            <div>
+              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-2">
+                Submitted Documents
+              </span>
+              <div className="flex flex-col gap-2">
+                {onboardingData.pictureUrl && (
+                  <a
+                    href={onboardingData.pictureUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 hover:underline"
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    <span>Profile Picture (PFP)</span>
+                    <ExternalLink className="w-3 h-3 ml-auto" />
+                  </a>
+                )}
+                {onboardingData.ndaUrl && (
+                  <a
+                    href={onboardingData.ndaUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    download
+                    className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 hover:underline"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Signed NDA (PDF)</span>
+                    <ExternalLink className="w-3 h-3 ml-auto" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="p-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setShowSubmissionDetails(false)}
+              className="px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-xs font-medium"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+     )}
+    </>
   );
 };
 
