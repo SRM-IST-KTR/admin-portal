@@ -19,6 +19,7 @@ import {
   File,
   FileText,
   Video,
+  Eye,
 } from "lucide-react";
 
 const getStatusBadge = (status) => {
@@ -93,6 +94,7 @@ const DOMAIN_SUBMISSION_CONFIG = {
 const RecruitmentTable = ({
   candidates = [],
   onCandidateClick,
+  onViewSubmission,
   onStatusChange,
   onDeleteCandidate,
   selectedIds = [],
@@ -261,26 +263,38 @@ const RecruitmentTable = ({
 
                     {/* Submissions */}
                     <td className="py-3 px-3.5">
-                      <div className="flex items-center gap-1.5">
-                        {(DOMAIN_SUBMISSION_CONFIG[normalizeDomain(candidate.domain)] || DOMAIN_SUBMISSION_CONFIG.fallback).map(({ key, icon: Icon, label, bg, color }) =>
-                          candidate.links?.[key] ? (
-                            <a
-                              key={key}
-                              href={candidate.links[key]}
-                              target="_blank"
-                              rel="noreferrer"
-                              className={`p-1 rounded ${bg} ${color} transition-colors`}
-                              title={label}
-                            >
-                              <Icon className="w-3.5 h-3.5" />
-                            </a>
-                          ) : (
-                            <span key={key} className="p-1 rounded text-zinc-300 dark:text-zinc-600" title={label}>
-                              <Icon className="w-3.5 h-3.5" />
-                            </span>
-                          )
-                        )}
-                      </div>
+                      {candidate.status === "onboarding" || candidate.status === "onboarded" ? (
+                        <button
+                          type="button"
+                          onClick={() => onViewSubmission && onViewSubmission(candidate)}
+                          className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+                          title="View onboarding submission details"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View Submission</span>
+                        </button>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          {(DOMAIN_SUBMISSION_CONFIG[normalizeDomain(candidate.domain)] || DOMAIN_SUBMISSION_CONFIG.fallback).map(({ key, icon: Icon, label, bg, color }) =>
+                            candidate.links?.[key] ? (
+                              <a
+                                key={key}
+                                href={candidate.links[key]}
+                                target="_blank"
+                                rel="noreferrer"
+                                className={`p-1 rounded ${bg} ${color} transition-colors`}
+                                title={label}
+                              >
+                                <Icon className="w-3.5 h-3.5" />
+                              </a>
+                            ) : (
+                              <span key={key} className="p-1 rounded text-zinc-300 dark:text-zinc-600" title={label}>
+                                <Icon className="w-3.5 h-3.5" />
+                              </span>
+                            )
+                          )}
+                        </div>
+                      )}
                     </td>
 
                     {/* Stage Status Inline Switcher */}

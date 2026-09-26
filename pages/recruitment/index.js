@@ -777,6 +777,10 @@ const RecruitmentPage = ({ inviteHtml }) => {
                 setSelectedCandidate(candidate);
                 setIsDetailModalOpen(true);
               }}
+              onViewSubmission={(candidate) => {
+                setSelectedCandidate(candidate);
+                setIsDetailModalOpen(true);
+              }}
               onStatusChange={handleStatusChange}
               onDeleteCandidate={handleDeleteCandidate}
               selectedIds={selectedIds}
