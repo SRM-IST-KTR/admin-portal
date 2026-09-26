@@ -30,8 +30,12 @@ const getStatusBadge = (status) => {
     case "interviewShortlisted":
     case "interviewShortlist":
       return "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800";
+    case "selected":
+      return "bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800";
     case "onboarding":
       return "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
+    case "onboarded":
+      return "bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800";
     case "underReview":
       return "bg-purple-50 dark:bg-purple-950/50 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800";
     case "rejected":
@@ -291,9 +295,11 @@ const RecruitmentTable = ({
                         <option value="task_assigned">Task Assigned</option>
                         <option value="taskSubmitted">Task Submitted</option>
                         <option value="interviewShortlisted">Interview Shortlisted</option>
-                        <option value="onboarding">Selected / Onboarded</option>
-                        <option value="rejected">Rejected</option>
+                        <option value="selected">Selected</option>
+                        <option value="onboarding">Onboarding</option>
+                        <option value="onboarded">Onboarded</option>
                         <option value="underReview">Under Review</option>
+                        <option value="rejected">Rejected</option>
                       </select>
                     </td>
 

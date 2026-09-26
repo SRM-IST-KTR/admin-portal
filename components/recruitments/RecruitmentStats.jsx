@@ -5,7 +5,7 @@ const RecruitmentStats = ({
   totalApplicants = 0,
   domainCounts = { Technical: 0, Creatives: 0, Corporate: 0 },
   yearCounts = { firstYear: 0, secondYear: 0, other: 0 },
-  statusCounts = { registered: 0, task_assigned: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, underReview: 0, rejected: 0 },
+  statusCounts = { registered: 0, task_assigned: 0, taskSubmitted: 0, interviewShortlisted: 0, selected: 0, onboarding: 0, onboarded: 0, underReview: 0, rejected: 0 },
   activeDomainFilter,
   onDomainClick,
   activeStatusFilter,
@@ -13,7 +13,7 @@ const RecruitmentStats = ({
 }) => {
   const taskSubmissions = statusCounts.taskSubmitted || 0;
   const interviewShortlisted = (statusCounts.interviewShortlisted || 0) + (statusCounts.interviewShortlist || 0);
-  const onboarded = statusCounts.onboarding || 0;
+  const onboarded = (statusCounts.selected || 0) + (statusCounts.onboarding || 0) + (statusCounts.onboarded || 0);
 
   const taskRate = totalApplicants > 0 ? ((taskSubmissions / totalApplicants) * 100).toFixed(1) : "0.0";
   const interviewRate = totalApplicants > 0 ? ((interviewShortlisted / totalApplicants) * 100).toFixed(1) : "0.0";
@@ -108,9 +108,9 @@ const RecruitmentStats = ({
         {/* Final Selected / Onboarding */}
         <button
           type="button"
-          onClick={() => onStatusClick && onStatusClick("onboarding")}
+          onClick={() => onStatusClick && onStatusClick("selected")}
           className={`text-left p-4 rounded-xl border transition-all duration-150 active:scale-[0.98] bg-white dark:bg-zinc-900 ${
-            activeStatusFilter === "onboarding"
+            activeStatusFilter === "selected"
               ? "border-emerald-600 dark:border-emerald-500 ring-1 ring-emerald-600 dark:ring-emerald-500"
               : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-700"
           }`}

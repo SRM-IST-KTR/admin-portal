@@ -70,10 +70,24 @@ const BulkActionBar = ({
         </button>
         <button
           type="button"
+          onClick={() => onBulkStatusChange("selected")}
+          className="px-2 py-1 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-cyan-600 hover:text-white dark:hover:bg-cyan-600 dark:hover:text-white transition-colors text-[11px] font-medium active:scale-[0.98]"
+        >
+          Selected
+        </button>
+        <button
+          type="button"
           onClick={() => onBulkStatusChange("onboarding")}
           className="px-2 py-1 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white transition-colors text-[11px] font-medium active:scale-[0.98]"
         >
           Onboard
+        </button>
+        <button
+          type="button"
+          onClick={() => onBulkStatusChange("onboarded")}
+          className="px-2 py-1 rounded-lg bg-zinc-800 dark:bg-zinc-200 hover:bg-green-600 hover:text-white dark:hover:bg-green-600 dark:hover:text-white transition-colors text-[11px] font-medium active:scale-[0.98]"
+        >
+          Onboarded
         </button>
         {onBulkSendTaskReminder && (
           <button

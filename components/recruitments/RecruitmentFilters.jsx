@@ -95,7 +95,9 @@ const RecruitmentFilters = ({
           <option value="task_assigned">2. Task Assigned</option>
           <option value="taskSubmitted">3. Task Submitted</option>
           <option value="interviewShortlisted">4. Interview Shortlisted</option>
-          <option value="onboarding">5. Onboarded / Selected</option>
+          <option value="selected">5. Selected</option>
+          <option value="onboarding">6. Onboarding</option>
+          <option value="onboarded">7. Onboarded</option>
           <option value="underReview">Under Review</option>
           <option value="rejected">Rejected</option>
         </select>

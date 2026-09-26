@@ -154,7 +154,9 @@ const RecruitmentPage = ({ inviteHtml }) => {
       task_assigned: 0,
       taskSubmitted: 0,
       interviewShortlisted: 0,
+      selected: 0,
       onboarding: 0,
+      onboarded: 0,
       underReview: 0,
       rejected: 0,
     };
@@ -229,7 +231,11 @@ const RecruitmentPage = ({ inviteHtml }) => {
       if (statusFilter !== "all") {
         let candidateStatus = item.status || "registered";
         if (candidateStatus === "interviewShortlist") candidateStatus = "interviewShortlisted";
-        if (candidateStatus !== statusFilter) {
+        if (statusFilter === "selected") {
+          if (!["selected", "onboarding", "onboarded"].includes(candidateStatus)) {
+            return false;
+          }
+        } else if (candidateStatus !== statusFilter) {
           return false;
         }
       }
@@ -273,7 +279,9 @@ const RecruitmentPage = ({ inviteHtml }) => {
     task_assigned: "Task Assigned",
     taskSubmitted: "Task Submitted",
     interviewShortlisted: "Interview Shortlisted",
-    onboarding: "Selected / Onboarded",
+    selected: "Selected",
+    onboarding: "Onboarding",
+    onboarded: "Onboarded",
     underReview: "Under Review",
     rejected: "Rejected",
   };
