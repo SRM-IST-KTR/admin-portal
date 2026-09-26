@@ -220,6 +220,17 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
             </button>
             <button
               type="button"
+              onClick={() => handleInputChange("status", "selected")}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all active:scale-[0.98] ${
+                formData.status === "selected"
+                  ? "bg-cyan-600 text-white"
+                  : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
+              }`}
+            >
+              5. Selected
+            </button>
+            <button
+              type="button"
               onClick={() => handleInputChange("status", "onboarding")}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all active:scale-[0.98] ${
                 formData.status === "onboarding"
@@ -227,7 +238,18 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
                   : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
               }`}
             >
-              5. Onboard
+              6. Onboard
+            </button>
+            <button
+              type="button"
+              onClick={() => handleInputChange("status", "onboarded")}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all active:scale-[0.98] ${
+                formData.status === "onboarded"
+                  ? "bg-green-600 text-white"
+                  : "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400"
+              }`}
+            >
+              7. Onboarded
             </button>
             <button
               type="button"

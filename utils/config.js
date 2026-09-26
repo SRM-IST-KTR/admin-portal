@@ -1,57 +1,60 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+// Every backend call goes through the same-origin proxy at pages/api/backend/[...path].
+// The proxy attaches the required API key server-side (admin for writes and admin
+// reads, public for display reads), so no key is ever shipped to the browser.
+const PROXY = "/api/backend";
 
 export const API_ENDPOINTS = {
     CONTACT: {
-        SEND_MESSAGE: `${API_BASE_URL}/api/contact`,
+        SEND_MESSAGE: `${PROXY}/contact`,
     },
     EMAIL: {
         SEND: "/api/email/send",
     },
     EVENTS: {
-        GET_ALL: `${API_BASE_URL}/api/events`,
-        GET_BY_ID: (id) => `${API_BASE_URL}/api/events/${id}`,
-        GET_BY_SLUG: (slug) => `${API_BASE_URL}/api/events/slug/${slug}`,
-        PARTICIPANTS: (slug) => `${API_BASE_URL}/api/events/participants/${slug}`,
-        UPDATE_PARTICIPANT: (email) => `${API_BASE_URL}/api/events/participants/${email}`,
-        CHECKIN: `${API_BASE_URL}/api/events/checkin`,
-        SNACKS: `${API_BASE_URL}/api/events/snacks`,
-        CREATE: `${API_BASE_URL}/api/events`,
-        UPDATE: (id) => `${API_BASE_URL}/api/events/${id}`,
-        DELETE: (id) => `${API_BASE_URL}/api/events/${id}`,
-        SEND_RSVP: `${API_BASE_URL}/api/events/send-rsvp`,
+        GET_ALL: `${PROXY}/events`,
+        GET_BY_ID: (id) => `${PROXY}/events/${id}`,
+        GET_BY_SLUG: (slug) => `${PROXY}/events/slug/${slug}`,
+        PARTICIPANTS: (slug) => `${PROXY}/events/participants/${slug}`,
+        UPDATE_PARTICIPANT: (email) => `${PROXY}/events/participants/${email}`,
+        CHECKIN: `${PROXY}/events/checkin`,
+        SNACKS: `${PROXY}/events/snacks`,
+        CREATE: `${PROXY}/events`,
+        UPDATE: (id) => `${PROXY}/events/${id}`,
+        DELETE: (id) => `${PROXY}/events/${id}`,
+        SEND_RSVP: `${PROXY}/events/send-rsvp`,
     },
     RECRUITMENT: {
-        GET_ALL: `${API_BASE_URL}/api/recruitment`,
-        GET_BY_ID: (id) => `${API_BASE_URL}/api/recruitment/${id}`,
-        CREATE: `${API_BASE_URL}/api/recruitment`,
-        UPDATE: (id) => `${API_BASE_URL}/api/recruitment/${id}`,
-        DELETE: (id) => `${API_BASE_URL}/api/recruitment/${id}`,
-        BATCH_UPDATE: `${API_BASE_URL}/api/recruitment/batch`,
-        ANALYTICS: `${API_BASE_URL}/api/recruitment/analytics`,
-        TASKS: `${API_BASE_URL}/api/recruitment/tasks`,
-        TASK_BY_ID: (id) => `${API_BASE_URL}/api/recruitment/tasks/${id}`,
-        SEND_TASK_REMINDER: `${API_BASE_URL}/api/recruitment/send-task-reminder`,
+        GET_ALL: `${PROXY}/recruitment`,
+        GET_BY_ID: (id) => `${PROXY}/recruitment/${id}`,
+        CREATE: `${PROXY}/recruitment`,
+        UPDATE: (id) => `${PROXY}/recruitment/${id}`,
+        DELETE: (id) => `${PROXY}/recruitment/${id}`,
+        BATCH_UPDATE: `${PROXY}/recruitment/batch`,
+        ANALYTICS: `${PROXY}/recruitment/analytics`,
+        TASKS: `${PROXY}/recruitment/tasks`,
+        TASK_BY_ID: (id) => `${PROXY}/recruitment/tasks/${id}`,
+        SEND_TASK_REMINDER: `${PROXY}/recruitment/send-task-reminder`,
     },
     SPONSORS: {
-        GET_ALL: `${API_BASE_URL}/api/sponsors`,
-        GET_BY_ID: (id) => `${API_BASE_URL}/api/sponsors/${id}`,
-        CREATE: `${API_BASE_URL}/api/sponsors`,
-        UPDATE: (id) => `${API_BASE_URL}/api/sponsors/${id}`,
-        DELETE: (id) => `${API_BASE_URL}/api/sponsors/${id}`,
+        GET_ALL: `${PROXY}/sponsors`,
+        GET_BY_ID: (id) => `${PROXY}/sponsors/${id}`,
+        CREATE: `${PROXY}/sponsors`,
+        UPDATE: (id) => `${PROXY}/sponsors/${id}`,
+        DELETE: (id) => `${PROXY}/sponsors/${id}`,
     },
     TEAM: {
-        GET_ALL: `${API_BASE_URL}/api/team`,
-        GET_BY_ID: (id) => `${API_BASE_URL}/api/team/${id}`,
-        CREATE: `${API_BASE_URL}/api/team`,
-        UPDATE: (id) => `${API_BASE_URL}/api/team/${id}`,
-        DELETE: (id) => `${API_BASE_URL}/api/team/${id}`,
+        GET_ALL: `${PROXY}/team`,
+        GET_BY_ID: (id) => `${PROXY}/team/${id}`,
+        CREATE: `${PROXY}/team`,
+        UPDATE: (id) => `${PROXY}/team/${id}`,
+        DELETE: (id) => `${PROXY}/team/${id}`,
     },
     CERTIFICATES: {
-        GET_ALL: `${API_BASE_URL}/api/certificate`,
-        GENERATE: `${API_BASE_URL}/api/certificate/generate`,
-        VERIFY: (certificateId) => `${API_BASE_URL}/api/certificate/verify/${certificateId}`,
-        DOWNLOAD: (certificateId) => `${API_BASE_URL}/api/certificate/download/${certificateId}`,
-        REVOKE: (certificateId) => `${API_BASE_URL}/api/certificate/revoke/${certificateId}`,
+        GET_ALL: `${PROXY}/certificate`,
+        GENERATE: `${PROXY}/certificate/generate`,
+        VERIFY: (certificateId) => `${PROXY}/certificate/verify/${certificateId}`,
+        DOWNLOAD: (certificateId) => `${PROXY}/certificate/download/${certificateId}`,
+        REVOKE: (certificateId) => `${PROXY}/certificate/revoke/${certificateId}`,
     },
 };
 
@@ -69,7 +72,6 @@ export const CONTACT_INFO = {
 };
 
 export default {
-    API_BASE_URL,
     API_ENDPOINTS,
     API_CONFIG,
     CONTACT_INFO,

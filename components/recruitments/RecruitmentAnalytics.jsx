@@ -48,7 +48,7 @@ const RecruitmentAnalytics = ({
   totalApplicants = 0,
   domainCounts = { Technical: 0, Creatives: 0, Corporate: 0 },
   yearCounts = { firstYear: 0, secondYear: 0, other: 0 },
-  statusCounts = { registered: 0, task_assigned: 0, taskSubmitted: 0, interviewShortlisted: 0, onboarding: 0, underReview: 0, rejected: 0 },
+  statusCounts = { registered: 0, task_assigned: 0, taskSubmitted: 0, interviewShortlisted: 0, selected: 0, onboarding: 0, onboarded: 0, underReview: 0, rejected: 0 },
   yearDomainData = {
     Technical: { firstYear: 0, secondYear: 0 },
     Creatives: { firstYear: 0, secondYear: 0 },
@@ -215,7 +215,7 @@ const RecruitmentAnalytics = ({
 
   // Chart 3: Conversion Funnel Horizontal
   const funnelChartData = {
-    labels: ["1. Registered", "2. Task Assigned", "3. Task Sub.", "4. Shortlisted", "5. Onboarded", "Rejected"],
+    labels: ["1. Registered", "2. Task Assigned", "3. Task Sub.", "4. Shortlisted", "5. Selected", "6. Onboarding", "7. Onboarded", "Rejected"],
     datasets: [
       {
         data: [
@@ -223,15 +223,20 @@ const RecruitmentAnalytics = ({
           statusCounts.task_assigned || 0,
           statusCounts.taskSubmitted || 0,
           (statusCounts.interviewShortlisted || 0) + (statusCounts.interviewShortlist || 0),
+          statusCounts.selected || 0,
           statusCounts.onboarding || 0,
+          statusCounts.onboarded || 0,
           statusCounts.rejected || 0,
         ],
         backgroundColor: [
           "rgba(59, 130, 246, 0.85)",  // Blue
           "rgba(245, 158, 11, 0.85)",  // Amber
           "rgba(99, 102, 241, 0.85)",  // Indigo
-          "rgba(16, 185, 129, 0.85)",  // Emerald
-          "rgba(239, 68, 68, 0.8)",    // Red
+          "rgba(100, 116, 245, 0.85)", // Periwinkle (interviewShortlisted)
+          "rgba(6, 172, 208, 0.85)",   // Cyan (selected)
+          "rgba(16, 185, 129, 0.85)",  // Emerald (onboarding)
+          "rgba(34, 197, 94, 0.85)",   // Green (onboarded)
+          "rgba(239, 68, 68, 0.8)",    // Red (rejected)
         ],
         borderRadius: 6,
       },
@@ -397,7 +402,7 @@ const RecruitmentAnalytics = ({
             )}
           </div>
 
-          <div className="grid grid-cols-4 gap-1.5 mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-center font-mono text-xs">
+          <div className="grid grid-cols-5 gap-1.5 mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-center font-mono text-xs">
             <div>
               <span className="text-[10px] text-zinc-400 block font-sans">Reg.</span>
               <strong className="text-zinc-800 dark:text-zinc-200">{totalApplicants}</strong>
@@ -414,7 +419,11 @@ const RecruitmentAnalytics = ({
             </div>
             <div>
               <span className="text-[10px] text-zinc-400 block font-sans">Selected</span>
-              <strong className="text-emerald-600 dark:text-emerald-400">{statusCounts.onboarding || 0}</strong>
+              <strong className="text-cyan-600 dark:text-cyan-400">{statusCounts.selected || 0}</strong>
+            </div>
+            <div>
+              <span className="text-[10px] text-zinc-400 block font-sans">Onboarded</span>
+              <strong className="text-emerald-600 dark:text-emerald-400">{statusCounts.onboarding + (statusCounts.onboarded || 0)}</strong>
             </div>
           </div>
         </div>
