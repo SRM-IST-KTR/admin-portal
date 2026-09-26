@@ -126,7 +126,7 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
     if (!email) return;
     setIsFetchingOnboarding(true);
     try {
-      const response = await axios.get(API_ENDPOINTS.TEAM.GET_ONBOARDING_BY_EMAIL(email));
+      const response = await axios.get(API_ENDPOINTS.RECRUITMENT.GET_TEAM_ONBOARDING(email));
       setOnboardingData(response.data.data || null);
     } catch (err) {
       setOnboardingData(null);

@@ -34,6 +34,7 @@ export const API_ENDPOINTS = {
         TASKS: `${PROXY}/recruitment/tasks`,
         TASK_BY_ID: (id) => `${PROXY}/recruitment/tasks/${id}`,
         SEND_TASK_REMINDER: `${PROXY}/recruitment/send-task-reminder`,
+        GET_TEAM_ONBOARDING: (email) => `${PROXY}/team/by-email/${encodeURIComponent(email)}`,
     },
     SPONSORS: {
         GET_ALL: `${PROXY}/sponsors`,
@@ -45,7 +46,6 @@ export const API_ENDPOINTS = {
     TEAM: {
         GET_ALL: `${PROXY}/team`,
         GET_BY_ID: (id) => `${PROXY}/team/${id}`,
-        GET_ONBOARDING_BY_EMAIL: (email) => `${PROXY}/team/by-email/${encodeURIComponent(email)}`,
         CREATE: `${PROXY}/team`,
         UPDATE: (id) => `${PROXY}/team/${id}`,
         DELETE: (id) => `${PROXY}/team/${id}`,
