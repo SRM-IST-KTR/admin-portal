@@ -111,9 +111,9 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
       setShowDeleteConfirm(false);
       setFormError("");
 
-      // Fetch onboarding data when candidate is in onboarding/onboarded stage
+      // Fetch onboarding data when candidate is in selected/onboarding/onboarded stage
       const status = candidate.status || "registered";
-      if (status === "onboarding" || status === "onboarded") {
+      if (status === "selected" || status === "onboarding" || status === "onboarded") {
         fetchOnboardingData(candidate.email);
       } else {
         setOnboardingData(null);
@@ -400,68 +400,36 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
             </div>
           </div>
 
-          {/* Submission Links OR Onboarding Documents */}
-          {formData.status === "onboarding" || formData.status === "onboarded" ? (
-            /* Onboarding Documents — PFP + NDA from teams_new */
+          {/* Submission Links OR View Submission Button */}
+          {formData.status === "selected" || formData.status === "onboarding" || formData.status === "onboarded" ? (
+            /* Past the task submission round — show View Submission button only */
             <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">
-                  Onboarding Documents
-                </span>
-                {onboardingData && (
-                  <button
-                    type="button"
-                    onClick={() => setShowSubmissionDetails(true)}
-                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>View Submission</span>
-                  </button>
-                )}
-              </div>
+              <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">
+                {formData.status === "onboarding" || formData.status === "onboarded"
+                  ? "Onboarding Documents"
+                  : "Task Submission (Read-only)"}
+              </span>
 
-              {isFetchingOnboarding ? (
+              {isFetchingOnboarding && formData.status !== "selected" ? (
                 <div className="flex items-center gap-2 py-2">
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-500" />
                   <span className="text-xs text-zinc-500">Loading onboarding data...</span>
                 </div>
-              ) : onboardingData ? (
-                <div className="flex flex-col gap-2">
-                  {onboardingData.pictureUrl && (
-                    <a
-                      href={onboardingData.pictureUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 hover:underline"
-                    >
-                      <User className="w-3.5 h-3.5" />
-                      <span>Profile Picture</span>
-                      <ExternalLink className="w-3 h-3 ml-auto" />
-                    </a>
-                  )}
-                  {onboardingData.ndaUrl && (
-                    <a
-                      href={onboardingData.ndaUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      download
-                      className="flex items-center gap-2 text-xs text-zinc-700 dark:text-zinc-300 hover:underline"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Signed NDA</span>
-                      <ExternalLink className="w-3 h-3 ml-auto" />
-                    </a>
-                  )}
-                  {!onboardingData.pictureUrl && !onboardingData.ndaUrl && (
-                    <p className="text-xs text-zinc-500">No onboarding documents found.</p>
-                  )}
-                </div>
-              ) : (
-                <p className="text-xs text-zinc-500">No onboarding data available yet.</p>
-              )}
+              ) : null}
+
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSubmissionDetails(true)}
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>View Submission</span>
+                </button>
+              </div>
             </div>
           ) : (
-            /* Task Submission Links (pre-onboarding) */
+            /* Task Submission Links (pre-selection) */
             <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
               <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">
                 Submission Links — {formData.domain}
@@ -703,6 +671,67 @@ const CandidateModal = ({ candidate, isOpen, onClose, onSave, onDelete }) => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Task Submission Links */}
+            {(candidate.links?.github || candidate.links?.demo || candidate.links?.deployment ||
+              candidate.links?.figmaPlugins || candidate.links?.design || candidate.links?.designFiles ||
+              candidate.links?.document || candidate.links?.introVideo) && (
+              <div>
+                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block mb-2">
+                  Task Submission Links — {candidate.domain}
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {candidate.links?.github && (
+                    <a href={candidate.links.github} target="_blank" rel="noreferrer" className="text-xs text-zinc-700 dark:text-zinc-300 hover:underline flex items-center gap-1">
+                      <Github className="w-3 h-3" />
+                      <span>GitHub</span>
+                    </a>
+                  )}
+                  {candidate.links?.demo && (
+                    <a href={candidate.links.demo} target="_blank" rel="noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                      <Globe className="w-3 h-3" />
+                      <span>Demo</span>
+                    </a>
+                  )}
+                  {candidate.links?.deployment && (
+                    <a href={candidate.links.deployment} target="_blank" rel="noreferrer" className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1">
+                      <ExternalLink className="w-3 h-3" />
+                      <span>Deployment</span>
+                    </a>
+                  )}
+                  {candidate.links?.figmaPlugins && (
+                    <a href={candidate.links.figmaPlugins} target="_blank" rel="noreferrer" className="text-xs text-orange-600 dark:text-orange-400 hover:underline flex items-center gap-1">
+                      <Figma className="w-3 h-3" />
+                      <span>Figma Plugins</span>
+                    </a>
+                  )}
+                  {candidate.links?.design && (
+                    <a href={candidate.links.design} target="_blank" rel="noreferrer" className="text-xs text-pink-600 dark:text-pink-400 hover:underline flex items-center gap-1">
+                      <Palette className="w-3 h-3" />
+                      <span>Design</span>
+                    </a>
+                  )}
+                  {candidate.links?.designFiles && (
+                    <a href={candidate.links.designFiles} target="_blank" rel="noreferrer" className="text-xs text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1">
+                      <File className="w-3 h-3" />
+                      <span>Design Files</span>
+                    </a>
+                  )}
+                  {candidate.links?.document && (
+                    <a href={candidate.links.document} target="_blank" rel="noreferrer" className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                      <FileText className="w-3 h-3" />
+                      <span>Document</span>
+                    </a>
+                  )}
+                  {candidate.links?.introVideo && (
+                    <a href={candidate.links.introVideo} target="_blank" rel="noreferrer" className="text-xs text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1">
+                      <Video className="w-3 h-3" />
+                      <span>Intro Video</span>
+                    </a>
+                  )}
                 </div>
               </div>
             )}
